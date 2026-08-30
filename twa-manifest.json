@@ -1,0 +1,41 @@
+{
+  "packageId": "com.doorstepexperts.app",
+  "name": "Doorstep Experts - Verified Home Services",
+  "launcherName": "Doorstep",
+  "display": "standalone",
+  "orientation": "default",
+  "themeColor": "#FF9933",
+  "navigationColor": "#138808",
+  "backgroundColor": "#FFFFFF",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=512&auto=format&fit=crop&q=80",
+  "maskableIconUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=512&auto=format&fit=crop&q=80",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Book Electrician",
+      "shortName": "Electrician",
+      "url": "/?category=Electrician",
+      "icon": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=96&auto=format&fit=crop&q=80"
+    },
+    {
+      "name": "Book Plumber",
+      "shortName": "Plumber",
+      "url": "/?category=Plumber",
+      "icon": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=96&auto=format&fit=crop&q=80"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://sivabuttler-collab.github.io/project-expo/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    },
+    "playBilling": {
+      "enabled": true
+    }
+  }
+}
