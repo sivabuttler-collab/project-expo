@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Doorstep Experts - Verified Home Services (An Indian Creation)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Doorstep Experts - Verified Home Services App (Created by You 🇮🇳)</title>
   
+  <!-- PWA Web App Manifest -->
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkRvb3JzdGVwIEV4cGVydHMiLAogICJzaG9ydF9uYW1lIjogIkRvb3JzdGVwIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNGRjk5MzMiLAogICJ0aGVtZV9jb2xvciI6ICIjRkY5OTMzIgp9" />
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -54,6 +57,8 @@
       /* 🇮🇳 Indian Flag Tricolor Subtle Background Backdrop */
       background: linear-gradient(180deg, rgba(255, 153, 51, 0.08) 0%, rgba(255, 255, 255, 0.95) 45%, rgba(19, 136, 8, 0.08) 100%);
       background-attachment: fixed;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .ashoka-watermark {
       background-image: radial-gradient(circle, rgba(0,0,128,0.03) 1px, transparent 1px);
@@ -67,7 +72,7 @@
     .pulse-dot { animation: pulse-ring 2s infinite; }
   </style>
 </head>
-<body class="ashoka-watermark min-h-screen flex flex-col antialiased">
+<body class="ashoka-watermark min-h-screen flex flex-col antialiased pb-16 md:pb-0">
   
   <div id="root"></div>
 
@@ -303,7 +308,6 @@
       }
     ];
 
-    // Initial Live Worker Jobs Database & Completed Ratings
     const INITIAL_LIVE_JOBS = [
       {
         id: "JOB-401",
@@ -312,10 +316,10 @@
         providerId: "P-101",
         providerName: "Rajesh Kumar",
         category: "Electrician",
-        workStatus: "Working on Site", // 'En Route' | 'Working on Site' | 'Completed & Paid'
+        workStatus: "Working on Site",
         totalBill: 450,
-        adminCommission: 45, // 10% for Admin Creator Bank
-        workerPayout: 405, // 90% for Worker
+        adminCommission: 45,
+        workerPayout: 405,
         customerRating: 5.0,
         feedback: "Fixed MCB trip within 20 mins! Great work.",
         updatedAt: "10 mins ago"
@@ -334,21 +338,6 @@
         customerRating: 4.8,
         feedback: "Kitchen tap leak repaired perfectly.",
         updatedAt: "5 mins ago"
-      },
-      {
-        id: "JOB-403",
-        customerName: "Ananya Roy",
-        customerPhone: "9988112233",
-        providerId: "P-105",
-        providerName: "Amitabh Singh",
-        category: "Washing Repair",
-        workStatus: "Completed & Paid",
-        totalBill: 600,
-        adminCommission: 60,
-        workerPayout: 540,
-        customerRating: 5.0,
-        feedback: "Washing machine motor noise resolved.",
-        updatedAt: "1 hour ago"
       }
     ];
 
@@ -372,13 +361,20 @@
 
       // Left Sliding Window Layers & Tabs
       const [leftStoreOpen, setLeftStoreOpen] = useState(false);
-      const [leftLayerTab, setLeftLayerTab] = useState('store'); // 'store' | 'live_workers' | 'revenue_ledger'
+      const [leftLayerTab, setLeftLayerTab] = useState('store');
+
+      // PWA Install State
+      const [installPrompt, setInstallPrompt] = useState(null);
+      const [isInstalled, setIsInstalled] = useState(false);
 
       // Job Rating & Completion Modal
       const [jobRatingOpen, setJobRatingOpen] = useState(false);
       const [activeJobForRating, setActiveJobForRating] = useState(null);
       const [givenRating, setGivenRating] = useState(5);
       const [givenFeedback, setGivenFeedback] = useState("Excellent service! Solved the problem quickly.");
+
+      // Emergency SOS Hotline State
+      const [sosOpen, setSosOpen] = useState(false);
 
       // Subscription Paywall Modal State
       const [subscriptionOpen, setSubscriptionOpen] = useState(false);
@@ -409,7 +405,24 @@
         }
       ]);
 
-      // Calculate Total Creator 10% Revenue Commission
+      useEffect(() => {
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          setInstallPrompt(e);
+        });
+      }, []);
+
+      const handleInstallApp = () => {
+        if (installPrompt) {
+          installPrompt.prompt();
+          installPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') setIsInstalled(true);
+          });
+        } else {
+          alert("📱 Doorstep Experts is ready! Tap 'Add to Home Screen' in your mobile browser settings to install as a native App.");
+        }
+      };
+
       const totalAdminCommissionCollected = liveJobs
         .filter(j => j.workStatus === "Completed & Paid")
         .reduce((sum, j) => sum + j.adminCommission, 0);
@@ -418,12 +431,10 @@
         .filter(j => j.workStatus === "Completed & Paid")
         .reduce((sum, j) => sum + j.workerPayout, 0);
 
-      // Check User Subscription Status (Requires Admin Approval)
       const userPhone = currentUser ? currentUser.phone : "9876543210";
       const activeUserSub = subscriptions.find(s => s.phone === userPhone);
       const isAccessPermitted = activeUserSub && activeUserSub.status === "Approved";
 
-      // Filtered & Sorted Providers
       let filtered = providers.filter(p => {
         if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
         if (genderFilter !== 'All' && p.gender !== genderFilter) return false;
@@ -473,8 +484,7 @@
           createdAt: new Date().toISOString()
         };
 
-        // Create new Live Job tracking entry
-        const comm = Math.round(totalFinalAmount * 0.10); // 10% Admin Commission
+        const comm = Math.round(totalFinalAmount * 0.10);
         const workerNet = totalFinalAmount - comm;
 
         const newJob = {
@@ -578,7 +588,6 @@
         setProviders(providers.filter(p => p.id !== id));
       };
 
-      // AI Logic
       const handleAiSend = (textToSend) => {
         const query = (textToSend || aiQuery).toLowerCase();
         if (!query.trim()) return;
@@ -657,6 +666,17 @@
             <div className="bg-[#138808]"></div>
           </div>
 
+          {/* CREATOR INTIMATION BANNER */}
+          <div className="bg-gray-900 text-saffron-300 py-1.5 px-4 text-center text-[11px] font-bold flex flex-wrap items-center justify-center gap-3">
+            <span>👑 Created & Administered by You (Platform Creator)</span>
+            <span className="text-gray-400">•</span>
+            <span className="text-emerald-300">10% Creator Commission Auto-Routed</span>
+            <span className="text-gray-400">•</span>
+            <button onClick={() => handleInstallApp()} className="px-2 py-0.5 bg-saffron-500 text-gray-900 rounded font-black hover:bg-saffron-400">
+              📱 Install App
+            </button>
+          </div>
+
           {/* SUBSCRIPTION PERMIT STATUS BAR */}
           <div className={`py-1.5 px-4 text-center text-xs font-extrabold flex items-center justify-center gap-2 ${
             isAccessPermitted ? 'bg-emerald-600 text-white' : 'bg-saffron-500 text-white'
@@ -689,7 +709,7 @@
                   >
                     <span>🛍️ Store & Live Workers</span>
                     <span className="bg-white text-saffron-700 px-1.5 py-0.2 rounded-full text-[10px]">
-                      10% Revenue
+                      10% Commission
                     </span>
                   </button>
 
@@ -705,10 +725,10 @@
                           Doorstep Experts
                         </span>
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
-                          🇮🇳 IN
+                          🇮🇳 IN APP
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-500 font-semibold">Verified Home Services • An Indian Creation</p>
+                      <p className="text-[11px] text-gray-500 font-semibold">Created & Administered by You • Official App</p>
                     </div>
                   </div>
 
@@ -738,6 +758,15 @@
 
                 {/* Nav Items */}
                 <div className="flex items-center gap-3 text-xs font-bold">
+                  {/* SOS Hotline Button */}
+                  <button
+                    onClick={() => setSosOpen(true)}
+                    className="px-2.5 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded-lg flex items-center gap-1 font-black text-xs animate-pulse"
+                    title="1-Tap Emergency SOS Hotline"
+                  >
+                    🚨 SOS
+                  </button>
+
                   <button 
                     onClick={() => setAiOpen(true)}
                     className="px-3 py-2 text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg flex items-center gap-1.5"
@@ -789,24 +818,26 @@
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-2 text-center md:text-left">
                 <span className="px-3 py-1 bg-white/20 rounded-full text-[11px] font-extrabold">
-                  ⚡ INSTANT 30-MINUTE DOORSTEP SERVICE
+                  ⚡ INSTANT 30-MINUTE DOORSTEP SERVICE • OFFICIAL APP
                 </span>
                 <h1 className="text-3xl md:text-4xl font-black">
                   India's Trusted <span className="text-amber-200">Doorstep Experts</span>
                 </h1>
                 <p className="text-xs sm:text-sm text-white/90 font-medium">
-                  Verified Electricians, Plumbers, Washing Repair, Carpenters, Wall Painters, Water Suppliers, Ironing & Sanitation Specialists.
+                  Created & Administered by You • Verified Electricians, Plumbers, Washing Repair, Carpenters, Wall Painters, Water Suppliers, Ironing & Sanitation Specialists.
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-xs space-y-2 max-w-xs w-full">
                 <div className="flex justify-between font-bold">
-                  <span>10% Admin Commission</span>
-                  <span className="text-emerald-300">₹{totalAdminCommissionCollected} Earned</span>
+                  <span>10% Creator Commission</span>
+                  <span className="text-emerald-300">₹{totalAdminCommissionCollected} Collected</span>
                 </div>
                 <div className="flex justify-between font-bold">
-                  <span>Average Arrival</span>
-                  <span className="text-saffron-200">20-30 Mins</span>
+                  <span>Creator Admin Permission</span>
+                  <span className={isAccessPermitted ? "text-emerald-300" : "text-amber-200"}>
+                    {isAccessPermitted ? '✓ Access Permitted' : '🔒 Approval Required'}
+                  </span>
                 </div>
                 <button 
                   onClick={() => setSubscriptionOpen(true)}
@@ -949,6 +980,54 @@
             </div>
           </main>
 
+          {/* MOBILE APP BOTTOM NAVIGATION BAR */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 py-2 px-4 flex justify-around items-center text-[10px] font-bold text-gray-600 md:hidden">
+            <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="flex flex-col items-center">
+              <span className="text-lg">🏠</span>
+              <span>Home</span>
+            </button>
+            <button onClick={() => setLeftStoreOpen(true)} className="flex flex-col items-center text-saffron-600">
+              <span className="text-lg">🛍️</span>
+              <span>Store</span>
+            </button>
+            <button onClick={() => setAiOpen(true)} className="flex flex-col items-center text-indigo-900">
+              <span className="text-lg">🤖</span>
+              <span>AI Expert</span>
+            </button>
+            <button onClick={() => setOrdersOpen(true)} className="flex flex-col items-center text-indiaGreen-700">
+              <span className="text-lg">📋</span>
+              <span>Orders ({orders.length})</span>
+            </button>
+            <button onClick={() => setAdminConsoleOpen(true)} className="flex flex-col items-center text-gray-900">
+              <span className="text-lg">🔒</span>
+              <span>Admin</span>
+            </button>
+          </div>
+
+          {/* EMERGENCY SOS HOTLINE MODAL */}
+          {sosOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center space-y-4 text-xs">
+                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-3xl animate-bounce">
+                  🚨
+                </div>
+                <h3 className="font-black text-gray-900 text-base">Emergency Home SOS Dispatch</h3>
+                <p className="text-gray-600 text-[11px]">
+                  For urgent power hazards, short circuits, gas leaks, or main pipe bursts, tap below for 15-minute priority dispatch.
+                </p>
+
+                <div className="space-y-2">
+                  <a href="tel:112" className="block w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-xl shadow-md">
+                    📞 Call Emergency Hotline (112 / +91 98765 43210)
+                  </a>
+                  <button onClick={() => setSosOpen(false)} className="w-full py-2 border rounded-xl font-bold text-gray-600">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* LEFT SLIDING STORE & MULTI-LAYER WORKER/REVENUE DRAWER */}
           {leftStoreOpen && (
             <div className="fixed inset-0 z-50 flex">
@@ -956,26 +1035,23 @@
               
               <div className="relative bg-white w-full max-w-md h-full shadow-2xl z-10 flex flex-col overflow-hidden animate-slide-in">
                 
-                {/* Tricolor Header */}
                 <div className="h-1.5 w-full grid grid-cols-3">
                   <div className="bg-[#FF9933]"></div>
                   <div className="bg-white"></div>
                   <div className="bg-[#138808]"></div>
                 </div>
 
-                {/* Sidebar Header */}
                 <div className="p-4 bg-gray-900 text-white flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">🛍️</span>
                     <div>
-                      <h3 className="font-extrabold text-sm text-white">Doorstep Platform Control Layers</h3>
-                      <p className="text-[10px] text-gray-400">Store, Live Workers & 10% Revenue Ledger</p>
+                      <h3 className="font-extrabold text-sm text-white">Doorstep Control & Supplies App</h3>
+                      <p className="text-[10px] text-gray-400">Created by You • 10% Creator Commission</p>
                     </div>
                   </div>
                   <button onClick={() => setLeftStoreOpen(false)} className="text-gray-400 hover:text-white font-bold">✕</button>
                 </div>
 
-                {/* LAYER TAB SELECTOR BUTTONS */}
                 <div className="flex bg-gray-100 p-1 border-b border-gray-200 text-xs font-extrabold">
                   <button
                     onClick={() => setLeftLayerTab('store')}
@@ -1005,11 +1081,8 @@
                   </button>
                 </div>
 
-                {/* TAB 1: SUPPLIES STORE */}
                 {leftLayerTab === 'store' && (
                   <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
-                    
-                    {/* Tip Expert Section */}
                     <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
                       <strong className="text-amber-900 font-extrabold block text-xs">💝 Tip Your Service Expert</strong>
                       <p className="text-[11px] text-amber-800">100% of your tip goes directly to the professional upon arrival.</p>
@@ -1065,7 +1138,6 @@
                   </div>
                 )}
 
-                {/* TAB 2: LIVE WORKERS & CUSTOMER RATING WORKFLOW */}
                 {leftLayerTab === 'live_workers' && (
                   <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
                     <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 font-extrabold text-xs">
@@ -1093,7 +1165,7 @@
                           <strong className="text-gray-900 font-bold">₹{job.totalBill}</strong>
                         </div>
                         <div className="flex justify-between text-[11px] text-indiaGreen-700">
-                          <span>10% Admin Revenue:</span>
+                          <span>10% Creator Revenue:</span>
                           <strong className="font-extrabold">+₹{job.adminCommission}</strong>
                         </div>
 
@@ -1113,7 +1185,6 @@
                   </div>
                 )}
 
-                {/* TAB 3: CREATOR 10% REVENUE BANK LEDGER */}
                 {leftLayerTab === 'revenue_ledger' && (
                   <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
                     <div className="p-4 bg-gradient-to-br from-emerald-700 to-indiaGreen-800 text-white rounded-2xl shadow-md space-y-2">
@@ -1153,7 +1224,6 @@
                   </div>
                 )}
 
-                {/* Sidebar Footer */}
                 <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-2 text-xs">
                   <button 
                     onClick={() => setLeftStoreOpen(false)}
@@ -1180,7 +1250,7 @@
                   <strong className="text-gray-900 font-bold block">{activeJobForRating.providerName} ({activeJobForRating.category})</strong>
                   <div className="flex justify-between text-xs font-bold pt-1">
                     <span>Total Bill: ₹{activeJobForRating.totalBill}</span>
-                    <span className="text-indiaGreen-700">Admin 10% Cut: ₹{activeJobForRating.adminCommission}</span>
+                    <span className="text-indiaGreen-700">Creator 10% Cut: ₹{activeJobForRating.adminCommission}</span>
                   </div>
                 </div>
 
@@ -1216,7 +1286,7 @@
                   onClick={() => handleCustomerCompleteJobAndRate(activeJobForRating.id)}
                   className="w-full py-3 bg-indiaGreen-600 hover:bg-indiaGreen-700 text-white font-extrabold rounded-xl shadow-md"
                 >
-                  Pay ₹{activeJobForRating.totalBill} & Transfer 10% to Admin Wallet
+                  Pay ₹{activeJobForRating.totalBill} & Transfer 10% to Creator Wallet
                 </button>
               </div>
             </div>
@@ -1229,19 +1299,18 @@
                 <div className="flex justify-between items-center border-b pb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">💳</span>
-                    <h3 className="font-extrabold text-sm text-gray-900">Subscribe & Request Admin Access</h3>
+                    <h3 className="font-extrabold text-sm text-gray-900">Subscribe & Request Creator Access</h3>
                   </div>
                   <button onClick={() => setSubscriptionOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold text-lg">✕</button>
                 </div>
 
-                {/* Current Subscription Status Notice */}
                 {activeUserSub ? (
                   <div className={`p-3 rounded-xl border text-[11px] space-y-1 ${
                     activeUserSub.status === "Approved" 
                       ? 'bg-emerald-50 text-emerald-900 border-emerald-200 font-bold'
                       : 'bg-amber-50 text-amber-900 border-amber-200 font-bold'
                   }`}>
-                    <span>Status: {activeUserSub.status === "Approved" ? '✅ Approved (Access Granted!)' : '⏳ Pending Creator Admin Approval'}</span>
+                    <span>Status: {activeUserSub.status === "Approved" ? '✅ Approved (Creator Access Granted!)' : '⏳ Pending Creator Admin Approval'}</span>
                     <p className="text-[10px] font-normal">Plan: {activeUserSub.plan} (₹{activeUserSub.amount}) • Ref: {activeUserSub.paymentRef}</p>
                   </div>
                 ) : (
@@ -1250,7 +1319,6 @@
                   </p>
                 )}
 
-                {/* Plan Selection */}
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { name: "Monthly Home Pass", price: 199, period: "/month" },
@@ -1272,7 +1340,6 @@
                   ))}
                 </div>
 
-                {/* Payment Form */}
                 <form onSubmit={handleSubmitSubscriptionPayment} className="space-y-3 pt-1">
                   <div>
                     <label className="font-bold text-gray-700 block mb-1">Your Mobile Number</label>
@@ -1295,17 +1362,17 @@
                     type="submit"
                     className="w-full py-3 bg-gradient-to-r from-saffron-500 to-indiaGreen-600 hover:from-saffron-600 hover:to-indiaGreen-700 text-white font-extrabold rounded-xl shadow-md text-xs"
                   >
-                    Submit Payment & Request Admin Approval (₹{selectedPlan.price})
+                    Submit Payment & Request Creator Approval (₹{selectedPlan.price})
                   </button>
                 </form>
               </div>
             </div>
           )}
 
-          {/* FOOTER */}
+          {/* FOOTER WITH CREATOR INTIMATION */}
           <footer className="bg-gray-900 text-gray-400 py-6 px-4 text-center text-xs mt-auto">
-            <p className="font-extrabold text-white">Doorstep Experts • Created with Pride in India 🇮🇳</p>
-            <p className="text-[11px] mt-1 text-gray-500">All services verified for household safety & transparent pricing.</p>
+            <p className="font-extrabold text-white">Doorstep Experts Official App • Created & Managed by You 🇮🇳</p>
+            <p className="text-[11px] mt-1 text-gray-500">10% Creator Commission Auto-Routed • 100% Verified Home Safety.</p>
           </footer>
 
           {/* BOOKING MODAL */}
@@ -1325,7 +1392,6 @@
                   <p className="text-[10px] text-gray-500">Verified ID: {selectedProvider.idNo}</p>
                 </div>
 
-                {/* Purchased Products & Tip Summary */}
                 {(cartProducts.length > 0 || selectedTip > 0) && (
                   <div className="p-2.5 bg-gray-50 rounded-xl border space-y-1 text-[11px]">
                     {cartProducts.length > 0 && (
@@ -1383,7 +1449,7 @@
                   <div>
                     <h3 className="font-extrabold text-sm flex items-center gap-2">
                       <span>Live GPS Provider Tracking</span>
-                      <span className="px-2 py-0.5 bg-emerald-500 text-[9px] rounded-full">LIVE DEMO</span>
+                      <span className="px-2 py-0.5 bg-emerald-500 text-[9px] rounded-full">LIVE APP DEMO</span>
                     </h3>
                     <p className="text-[10px] text-gray-400">Order #{activeOrder.id} • {activeOrder.providerName}</p>
                   </div>
@@ -1435,7 +1501,6 @@
                   <button onClick={() => setAiOpen(false)} className="text-gray-400 hover:text-white">✕</button>
                 </div>
 
-                {/* Chat Area */}
                 <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 text-xs">
                   {aiMessages.map((msg, i) => (
                     <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
@@ -1467,7 +1532,6 @@
                   ))}
                 </div>
 
-                {/* Input Form */}
                 <form 
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -1495,16 +1559,14 @@
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
               <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 text-xs h-[88vh] flex flex-col">
                 
-                {/* Header */}
                 <div className="flex justify-between items-center border-b pb-3">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-1 bg-gray-900 text-saffron-400 font-black rounded-lg text-xs">🔒 CREATOR ADMIN</span>
-                    <h3 className="font-extrabold text-sm text-gray-900">Doorstep Experts Platform & Access Console</h3>
+                    <h3 className="font-extrabold text-sm text-gray-900">Doorstep Experts Creator Management Console</h3>
                   </div>
                   <button onClick={() => setAdminConsoleOpen(false)} className="text-gray-400 font-bold hover:text-gray-600 text-lg">✕</button>
                 </div>
 
-                {/* Password Protection Lock Screen */}
                 {!adminAuthenticated ? (
                   <div className="flex-1 flex flex-col items-center justify-center space-y-4 max-w-md mx-auto text-center py-6">
                     <div className="w-14 h-14 rounded-2xl bg-saffron-100 border border-saffron-300 flex items-center justify-center text-2xl">
@@ -1540,14 +1602,12 @@
                     </form>
                   </div>
                 ) : (
-                  /* Full Unlocked Admin Console */
                   <div className="flex-1 overflow-y-auto space-y-5">
                     <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-emerald-900 font-bold">
-                      <span>✓ Creator Authenticated</span>
+                      <span>✓ Creator Authenticated (You have full control of subscriptions & 10% commission payouts)</span>
                       <button onClick={() => setAdminAuthenticated(false)} className="text-xs text-red-600 underline">Lock Console</button>
                     </div>
 
-                    {/* SECTION 1: USER SUBSCRIPTIONS & PERMIT ACCESS APPROVAL */}
                     <div className="bg-saffron-50/50 p-4 rounded-xl border border-saffron-200 space-y-3">
                       <h4 className="font-extrabold text-gray-900 text-sm flex items-center justify-between">
                         <span>💳 User Subscription Payments & Access Permits ({subscriptions.length})</span>
@@ -1592,7 +1652,6 @@
                       </div>
                     </div>
 
-                    {/* SECTION 2: ADD NEW SERVICE PROVIDER */}
                     <div className="space-y-2">
                       <h4 className="font-bold text-gray-800 text-sm">Add New Service Provider</h4>
                       <form onSubmit={(e) => {
@@ -1632,7 +1691,6 @@
                       </form>
                     </div>
 
-                    {/* SECTION 3: REGISTERED MEMBERS */}
                     <div className="space-y-2">
                       <h4 className="font-bold text-gray-800 text-sm">Registered Service Members ({providers.length})</h4>
                       <div className="space-y-1.5">
@@ -1668,8 +1726,8 @@
                 <div className="space-y-2 text-gray-700">
                   <p>1. <strong>Verification:</strong> Compare the provider's badge number on the app before opening the door.</p>
                   <p>2. <strong>Transparent Rates:</strong> Upfront fixed rates without hidden charges.</p>
-                  <p>3. <strong>Home Store & Tip:</strong> Tap '🛍️ Store & Live Workers' on the left to buy spare parts or check worker status.</p>
-                  <p>4. <strong>10% Creator Commission:</strong> 10% of every completed job payment is automatically routed to the Creator Admin Bank Account.</p>
+                  <p>3. <strong>Created by You:</strong> Created & Administered by You with 10% Creator Commission auto-routed.</p>
+                  <p>4. <strong>Subscription & Access:</strong> Users submit subscription payments which Creator Admin approves before booking services.</p>
                   <p>5. <strong>Admin Security:</strong> Admin Console requires creator password <code>admin123</code>.</p>
                 </div>
               </div>
