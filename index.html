@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doorstep Experts - Verified Home Services (An Indian Creation)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React 18 & ReactDOM UMD -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel Standalone for inline JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            saffron: {
+              50: '#fff8f0',
+              100: '#ffeedb',
+              500: '#FF9933',
+              600: '#e07b1a',
+              700: '#bc5e0e',
+            },
+            indiaGreen: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#138808',
+              600: '#0f6e06',
+              700: '#0b5204',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      /* 🇮🇳 Indian Flag Tricolor Subtle Background Backdrop */
+      background: linear-gradient(180deg, rgba(255, 153, 51, 0.08) 0%, rgba(255, 255, 255, 0.95) 45%, rgba(19, 136, 8, 0.08) 100%);
+      background-attachment: fixed;
+    }
+    .ashoka-watermark {
+      background-image: radial-gradient(circle, rgba(0,0,128,0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(19, 136, 8, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(19, 136, 8, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(19, 136, 8, 0); }
+    }
+    .pulse-dot { animation: pulse-ring 2s infinite; }
+  </style>
+</head>
+<body class="ashoka-watermark min-h-screen flex flex-col antialiased">
+  
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const INITIAL_PROVIDERS = [
+      {
+        id: "P-101",
+        name: "Rajesh Kumar",
+        category: "Electrician",
+        rating: 4.9,
+        reviewsCount: 184,
+        price: 299,
+        priceUnit: "hr",
+        availability: "Available Now",
+        gender: "Male",
+        contact: "+91 98765 43210",
+        idNo: "DE-ELC-8842",
+        experience: "7 Years",
+        completedJobs: 340,
+        avatar: "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?w=150&auto=format&fit=crop&q=80",
+        bio: "Certified high-voltage & home wiring expert. Specialized in fan, MCB, inverter, and smart light installations.",
+        distanceKm: 1.2
+      },
+      {
+        id: "P-102",
+        name: "Sunita Sharma",
+        category: "Electrician",
+        rating: 4.8,
+        reviewsCount: 120,
+        price: 280,
+        priceUnit: "hr",
+        availability: "Available Now",
+        gender: "Female",
+        contact: "+91 98123 45678",
+        idNo: "DE-ELC-9021",
+        experience: "5 Years",
+        completedJobs: 215,
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+        bio: "Expert electrical engineer handling house short-circuit repairs, switchboards, and fixture setup.",
+        distanceKm: 1.8
+      },
+      {
+        id: "P-103",
+        name: "Ramesh Verma",
+        category: "Plumber",
+        rating: 4.7,
+        reviewsCount: 210,
+        price: 349,
+        priceUnit: "hr",
+        availability: "Available Now",
+        gender: "Male",
+        contact: "+91 99887 76655",
+        idNo: "DE-PLM-7711",
+        experience: "8 Years",
+        completedJobs: 490,
+        avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80",
+        bio: "Master plumber for pipeline leak fixes, tap replacement, bathroom fittings, and tank cleaning.",
+        distanceKm: 2.1
+      },
+      {
+        id: "P-104",
+        name: "Pooja Patel",
+        category: "Plumber",
+        rating: 4.9,
+        reviewsCount: 95,
+        price: 320,
+        priceUnit: "hr",
+        availability: "Available Now",
+        gender: "Female",
+        contact: "+91 97654 32109",
+        idNo: "DE-PLM-6320",
+        experience: "4 Years",
+        completedJobs: 178,
+        avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+        bio: "Specialist in pipe fittings, water heater installation, and kitchen sink clog unclogging.",
+        distanceKm: 2.5
+      },
+      {
+        id: "P-105",
+        name: "Amitabh Singh",
+        category: "Washing Repair",
+        rating: 4.8,
+        reviewsCount: 156,
+        price: 399,
+        priceUnit: "visit",
+        availability: "Available Now",
+        gender: "Male",
+        contact: "+91 98450 11223",
+        idNo: "DE-WSH-3321",
+        experience: "6 Years",
+        completedJobs: 310,
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        bio: "Specializes in Samsung, LG, IFB, Whirlpool washing machine repairs, motor noise fix, and drum cleaning.",
+        distanceKm: 1.5
+      },
+      {
+        id: "P-106",
+        name: "Vikram Vishwakarma",
+        category: "Carpenter",
+        rating: 4.9,
+        reviewsCount: 230,
+        price: 450,
+        priceUnit: "hr",
+        availability: "Available Now",
+        gender: "Male",
+        contact: "+91 99112 23344",
+        idNo: "DE-CRP-5544",
+        experience: "10 Years",
+        completedJobs: 620,
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        bio: "Expert woodworker for door lock repairs, modular cabinet fixes, furniture assembly, and wooden bed work.",
+        distanceKm: 2.9
+      },
+      {
+        id: "P-107",
+        name: "Anita Yadav",
+        category: "Wall Painter",
+        rating: 4.8,
+        reviewsCount: 142,
+        price: 499,
+        priceUnit: "room",
+        availability: "Available Now",
+        gender: "Female",
+        contact: "+91 98221 14433",
+        idNo: "DE-PNT-9988",
+        experience: "6 Years",
+        completedJobs: 280,
+        avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150&auto=format&fit=crop&q=80",
+        bio: "Interior & exterior wall painting, waterproof putty touch-ups, texture wall designs, and dampness fix.",
+        distanceKm: 3.1
+      },
+      {
+        id: "P-108",
+        name: "Suresh Jalwala",
+        category: "Water Supplier",
+        rating: 4.6,
+        reviewsCount: 310,
+        price: 60,
+        priceUnit: "can (20L)",
+        availability: "Available Now",
+        gender: "Male",
+        contact: "+91 97110 55667",
+        idNo: "DE-WTR-1100",
+        experience: "5 Years",
+        completedJobs: 1200,
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+        bio: "Chilled and RO purified 20-litre water jar doorstep delivery for homes and offices.",
+        distanceKm: 0.8
+      },
+      {
+        id: "P-109",
+        name: "Kiran Devi",
+        category: "Iron Person",
+        rating: 4.9,
+        reviewsCount: 275,
+        price: 12,
+        priceUnit: "cloth",
+        availability: "Available Now",
+        gender: "Female",
+        contact: "+91 99554 33221",
+        idNo: "DE-IRN-4422",
+        experience: "7 Years",
+        completedJobs: 890,
+        avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+        bio: "Heavy steam ironing for sarees, suits, shirts, and daily wear with free doorstep pickup.",
+        distanceKm: 0.5
+      },
+      {
+        id: "P-110",
+        name: "Manoj Swachh",
+        category: "Scavenger / Sanitation",
+        rating: 4.9,
+        reviewsCount: 198,
+        price: 350,
+        priceUnit: "visit",
+        availability: "Available Now",
+        gender: "Male",
+        contact: "+91 98877 66554",
+        idNo: "DE-SCV-1001",
+        experience: "9 Years",
+        completedJobs: 540,
+        avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
+        bio: "Professional home drain cleaning, septic tank maintenance, sanitation, and deep hygiene services.",
+        distanceKm: 1.4
+      },
+      {
+        id: "P-111",
+        name: "Sunil CoolCare",
+        category: "AC Repair",
+        rating: 4.8,
+        reviewsCount: 320,
+        price: 499,
+        priceUnit: "service",
+        availability: "Available Now",
+        gender: "Male",
+        contact: "+91 98711 22334",
+        idNo: "DE-ACR-7722",
+        experience: "8 Years",
+        completedJobs: 710,
+        avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+        bio: "Split & Window AC servicing, gas charging, cooling problem diagnostic, and PCB repairing.",
+        distanceKm: 1.1
+      }
+    ];
+
+    // Home Equipment & Spare Supplies Catalog
+    const EQUIPMENT_PRODUCTS = [
+      { id: "EQ-1", name: "Surf Excel Matic Powder (1kg)", category: "Washing Repair", price: 220, emoji: "🧺", desc: "Front & Top load detergent for laundry care" },
+      { id: "EQ-2", name: "Washing Machine Cleaner Tablets (6-Pack)", category: "Washing Repair", price: 180, emoji: "🧼", desc: "Descaling drum cleaner for odor & scale removal" },
+      { id: "EQ-3", name: "Anchor 6A 3-Pin Smart Plug", category: "Electrician", price: 299, emoji: "🔌", desc: "Heavy duty fire-retardant electrical plug" },
+      { id: "EQ-4", name: "Goldmedal Heavy Duty Extension Cord (5m)", category: "Electrician", price: 450, emoji: "⚡", desc: "Surge protected multi-socket cord" },
+      { id: "EQ-5", name: "Waterproof Teflon Pipe Seal Tape (3-Pack)", category: "Plumber", price: 90, emoji: "🚰", desc: "Leak prevention thread sealant tape" },
+      { id: "EQ-6", name: "High Pressure Faucet Aerator Nozzle", category: "Plumber", price: 199, emoji: "🚿", desc: "360-degree water saving sink nozzle" },
+      { id: "EQ-7", name: "Fevicol SH Wood Adhesive (500g)", category: "Carpenter", price: 165, emoji: "🔨", desc: "Strong synthetic wood bonding glue" },
+      { id: "EQ-8", name: "Rust Off Lubricant Spray (200ml)", category: "Carpenter", price: 175, emoji: "⚙️", desc: "Unjams door hinges & locks instantly" },
+      { id: "EQ-9", name: "Asian Paints Wall Putty Patch (1kg)", category: "Wall Painter", price: 120, emoji: "🎨", desc: "Dampness proof instant wall hole filler" },
+      { id: "EQ-10", name: "Water Dispenser Hand Pump", category: "Water Supplier", price: 150, emoji: "💧", desc: "Easy manual pump for 20L water cans" },
+      { id: "EQ-11", name: "Fabric Softener Spray (500ml)", category: "Iron Person", price: 140, emoji: "👔", desc: "Anti-wrinkle crisp steam ironing spray" },
+      { id: "EQ-12", name: "Lizol Disinfectant Cleaner (1L)", category: "Scavenger / Sanitation", price: 210, emoji: "🧴", desc: "99.9% germ killer floor & drain cleaner" }
+    ];
+
+    const INITIAL_ORDERS = [
+      {
+        id: "ORD-9081",
+        userName: "Demo Customer",
+        userId: "9876543210",
+        userAddress: "Flat 402, Green Valley Apartments, Connaught Place, New Delhi",
+        providerName: "Rajesh Kumar",
+        providerCategory: "Electrician",
+        providerContact: "+91 98765 43210",
+        providerIdNo: "DE-ELC-8842",
+        amount: 299,
+        tipAmount: 50,
+        purchasedProducts: ["Anchor 6A 3-Pin Smart Plug"],
+        timeSlot: "Immediately (30-45 mins)",
+        status: "En Route",
+        paymentMethod: "UPI (Paid)",
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    function App() {
+      const [providers, setProviders] = useState(INITIAL_PROVIDERS);
+      const [orders, setOrders] = useState(INITIAL_ORDERS);
+      const [currentUser, setCurrentUser] = useState(null);
+      const [selectedLocation, setSelectedLocation] = useState({ city: "New Delhi", area: "Connaught Place, Central Delhi" });
+      const [selectedCategory, setSelectedCategory] = useState('All');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [sortBy, setSortBy] = useState('rating');
+      const [genderFilter, setGenderFilter] = useState('All');
+      const [availabilityFilter, setAvailabilityFilter] = useState('Available Now');
+
+      // Equipment Cart & Tip State
+      const [cartProducts, setCartProducts] = useState([]);
+      const [selectedTip, setSelectedTip] = useState(50); // default tip ₹50
+
+      // Left Sliding Window State (Equipment Store & Supplies)
+      const [leftStoreOpen, setLeftStoreOpen] = useState(false);
+
+      // Modals State
+      const [loginOpen, setLoginOpen] = useState(false);
+      const [bookingOpen, setBookingOpen] = useState(false);
+      const [selectedProvider, setSelectedProvider] = useState(null);
+      const [gpsOpen, setGpsOpen] = useState(false);
+      const [activeOrder, setActiveOrder] = useState(null);
+      const [aiOpen, setAiOpen] = useState(false);
+      const [adminConsoleOpen, setAdminConsoleOpen] = useState(false);
+      const [adminPasswordInput, setAdminPasswordInput] = useState('');
+      const [adminAuthenticated, setAdminAuthenticated] = useState(false);
+      const [adminError, setAdminError] = useState('');
+      const [instructionsOpen, setInstructionsOpen] = useState(false);
+      const [ordersOpen, setOrdersOpen] = useState(false);
+      const [locationOpen, setLocationOpen] = useState(false);
+
+      // AI Chat State
+      const [aiQuery, setAiQuery] = useState('');
+      const [aiMessages, setAiMessages] = useState([
+        {
+          sender: 'ai',
+          text: "Namaste! 🙏 I am Doorstep AI Expert. Type or tap any household issue below and I will diagnose it & recommend safety steps!"
+        }
+      ]);
+
+      // Filtered & Sorted Providers
+      let filtered = providers.filter(p => {
+        if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
+        if (genderFilter !== 'All' && p.gender !== genderFilter) return false;
+        if (availabilityFilter !== 'All' && p.availability !== availabilityFilter) return false;
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          return p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.idNo.toLowerCase().includes(q);
+        }
+        return true;
+      });
+
+      if (sortBy === 'rating') filtered.sort((a, b) => b.rating - a.rating);
+      else if (sortBy === 'price_asc') filtered.sort((a, b) => a.price - b.price);
+      else if (sortBy === 'price_desc') filtered.sort((a, b) => b.price - a.price);
+      else if (sortBy === 'distance') filtered.sort((a, b) => a.distanceKm - b.distanceKm);
+
+      const handleConfirmBooking = (payload) => {
+        const productNames = cartProducts.map(item => item.name);
+        const productsCost = cartProducts.reduce((sum, item) => sum + item.price, 0);
+        const totalFinalAmount = payload.amount + productsCost + selectedTip;
+
+        const newOrd = {
+          id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+          userName: payload.userName,
+          userId: payload.userPhone,
+          userAddress: payload.userAddress,
+          providerName: payload.providerName,
+          providerCategory: payload.providerCategory,
+          providerContact: payload.providerContact,
+          providerIdNo: payload.providerIdNo,
+          amount: totalFinalAmount,
+          tipAmount: selectedTip,
+          purchasedProducts: productNames,
+          timeSlot: payload.timeSlot,
+          status: "En Route",
+          paymentMethod: payload.paymentMethod,
+          createdAt: new Date().toISOString()
+        };
+        setOrders([newOrd, ...orders]);
+        setBookingOpen(false);
+        setActiveOrder(newOrd);
+        setGpsOpen(true);
+      };
+
+      const handleAdminPasswordUnlock = (e) => {
+        e.preventDefault();
+        if (adminPasswordInput === 'admin123' || adminPasswordInput === 'creator2026' || adminPasswordInput === 'admin') {
+          setAdminAuthenticated(true);
+          setAdminError('');
+        } else {
+          setAdminError('🔒 Access Denied: Incorrect Creator Admin Password!');
+        }
+      };
+
+      const handleAddProvider = (formData) => {
+        const newP = {
+          id: `P-${100 + providers.length + 1}`,
+          name: formData.name,
+          category: formData.category,
+          rating: parseFloat(formData.rating || 4.8),
+          reviewsCount: 1,
+          price: parseInt(formData.price || 300),
+          priceUnit: formData.priceUnit || "hr",
+          availability: formData.availability || "Available Now",
+          gender: formData.gender || "Male",
+          contact: formData.contact || "+91 99000 00000",
+          idNo: formData.idNo || `DE-NEW-${Math.floor(1000 + Math.random() * 9000)}`,
+          experience: formData.experience || "3 Years",
+          completedJobs: 15,
+          avatar: formData.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+          bio: formData.bio || "Experienced service professional.",
+          distanceKm: 1.5
+        };
+        setProviders([newP, ...providers]);
+      };
+
+      const handleDeleteProvider = (id) => {
+        setProviders(providers.filter(p => p.id !== id));
+      };
+
+      // AI Logic
+      const handleAiSend = (textToSend) => {
+        const query = (textToSend || aiQuery).toLowerCase();
+        if (!query.trim()) return;
+
+        const userMsg = { sender: 'user', text: textToSend || aiQuery };
+        setAiQuery('');
+
+        let cat = "Electrician";
+        let advice = "";
+        let sol = "";
+
+        if (query.includes("spark") || query.includes("fan") || query.includes("fuse") || query.includes("mcb") || query.includes("wire") || query.includes("light") || query.includes("switch") || query.includes("shock")) {
+          cat = "Electrician";
+          advice = "⚠️ SAFETY WARNING: Switch off your main power MCB instantly before touching open wires!";
+          sol = "Electrical short circuits or fan motor issues need certified testing.";
+        } else if (query.includes("leak") || query.includes("pipe") || query.includes("tap") || query.includes("drain") || query.includes("sink") || query.includes("flush") || query.includes("tank")) {
+          cat = "Plumber";
+          advice = "🚰 SAFETY TIP: Turn off the main water tank stopcock to prevent flooding.";
+          sol = "Pipe leakage or tap washer damage should be sealed immediately to prevent dampness.";
+        } else if (query.includes("washing") || query.includes("machine") || query.includes("spin") || query.includes("dryer") || query.includes("noise")) {
+          cat = "Washing Repair";
+          advice = "🔌 SAFETY TIP: Unplug the machine power cord immediately.";
+          sol = "Drum imbalance or motor belt wear requires technician inspection.";
+        } else if (query.includes("wood") || query.includes("door") || query.includes("lock") || query.includes("cabinet") || query.includes("bed")) {
+          cat = "Carpenter";
+          advice = "🔨 SAFETY TIP: Keep doors wedged open so locked doors don't trap family members.";
+          sol = "Jammed mortise locks, door swelling, or loose cabinet hinges can be fixed smoothly.";
+        } else if (query.includes("paint") || query.includes("wall") || query.includes("damp") || query.includes("putty")) {
+          cat = "Wall Painter";
+          advice = "🎨 SAFETY TIP: Keep windows open for natural ventilation.";
+          sol = "Moisture seepage requires anti-damp primer touchups and fresh emulsion coating.";
+        } else if (query.includes("water") || query.includes("can") || query.includes("ro") || query.includes("jar")) {
+          cat = "Water Supplier";
+          advice = "💧 HYGIENE TIP: Check for factory sealed tamper caps on water jars.";
+          sol = "20-Litre purified RO water jars can be delivered within 20-30 minutes.";
+        } else if (query.includes("iron") || query.includes("press") || query.includes("cloth") || query.includes("saree")) {
+          cat = "Iron Person";
+          advice = "🧺 TIP: Separate delicate silk sarees for steam pressing.";
+          sol = "Crisp steam ironing with doorstep pickup and delivery.";
+        } else if (query.includes("clean") || query.includes("sewer") || query.includes("drainage") || query.includes("sanitize")) {
+          cat = "Scavenger / Sanitation";
+          advice = "🧼 HYGIENE TIP: Avoid inhaling harsh uncertified cleaning chemicals.";
+          sol = "Deep household drain cleaning and hygiene sanitation.";
+        } else {
+          cat = "Electrician";
+          advice = "🛡️ SAFETY TIP: Prioritize household safety whenever dealing with electrical or water systems!";
+          sol = "Our verified home experts can visit your location to inspect and fix the problem.";
+        }
+
+        const aiMsg = {
+          sender: 'ai',
+          text: `Based on your description, we recommend booking a verified **${cat}**.`,
+          category: cat,
+          advice,
+          sol
+        };
+
+        setAiMessages(prev => [...prev, userMsg, aiMsg]);
+      };
+
+      const toggleProductInCart = (prod) => {
+        if (cartProducts.some(item => item.id === prod.id)) {
+          setCartProducts(cartProducts.filter(item => item.id !== prod.id));
+        } else {
+          setCartProducts([...cartProducts, prod]);
+        }
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col relative">
+          
+          {/* 🇮🇳 TRICOLOR TOP BAND */}
+          <div className="h-2 w-full grid grid-cols-3">
+            <div className="bg-[#FF9933]"></div>
+            <div className="bg-white"></div>
+            <div className="bg-[#138808]"></div>
+          </div>
+
+          {/* NAVBAR */}
+          <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-20 gap-4">
+                
+                <div className="flex items-center gap-4">
+                  
+                  {/* LEFT SLIDING STORE BUTTON */}
+                  <button 
+                    onClick={() => setLeftStoreOpen(true)}
+                    className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-saffron-500 to-amber-500 text-white rounded-xl font-extrabold text-xs shadow-md hover:scale-105 transition-all"
+                    title="Open Home Equipment & Supplies Store"
+                  >
+                    <span>🛍️ Store & Tip</span>
+                    <span className="bg-white text-saffron-700 px-1.5 py-0.2 rounded-full text-[10px]">
+                      {cartProducts.length}
+                    </span>
+                  </button>
+
+                  <div className="flex items-center gap-2.5 cursor-pointer">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-saffron-500 to-indiaGreen-600 p-0.5 shadow-md">
+                      <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center font-black text-xl text-saffron-600">
+                        🛠️
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xl font-black bg-gradient-to-r from-saffron-600 to-indiaGreen-700 bg-clip-text text-transparent">
+                          Doorstep Experts
+                        </span>
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
+                          🇮🇳 IN
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-500 font-semibold">Verified Home Services • An Indian Creation</p>
+                    </div>
+                  </div>
+
+                  {/* Swiggy Location Picker */}
+                  <div 
+                    onClick={() => setLocationOpen(true)}
+                    className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 cursor-pointer text-xs"
+                  >
+                    <span className="text-saffron-600 font-bold">📍</span>
+                    <div>
+                      <span className="font-bold text-gray-900 block truncate">{selectedLocation.city}</span>
+                      <span className="text-gray-500 text-[10px] block truncate">{selectedLocation.area}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Search Bar */}
+                <div className="flex-1 max-w-md hidden md:block">
+                  <input 
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search Electrician, Plumber, Painter, ID No..."
+                    className="w-full px-4 py-2 text-xs bg-gray-50 border border-gray-200 rounded-full focus:ring-2 focus:ring-saffron-500 font-medium"
+                  />
+                </div>
+
+                {/* Nav Items */}
+                <div className="flex items-center gap-3 text-xs font-bold">
+                  <button 
+                    onClick={() => setAiOpen(true)}
+                    className="px-3 py-2 text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg flex items-center gap-1.5"
+                  >
+                    <span>🤖 Doorstep AI</span>
+                  </button>
+
+                  <button onClick={() => setInstructionsOpen(true)} className="text-gray-700 hover:text-saffron-600 hidden sm:block">
+                    Instructions
+                  </button>
+
+                  <button onClick={() => setOrdersOpen(true)} className="text-gray-700 hover:text-indiaGreen-700 flex items-center gap-1">
+                    <span>Orders</span>
+                    <span className="px-1.5 py-0.2 bg-indiaGreen-600 text-white rounded-full text-[10px]">
+                      {orders.length}
+                    </span>
+                  </button>
+
+                  {/* ADMIN BUTTON WITH PASSWORD PROTECTION */}
+                  <button 
+                    onClick={() => setAdminConsoleOpen(true)} 
+                    className="px-3 py-1.5 bg-gray-900 text-white hover:bg-gray-800 rounded-lg flex items-center gap-1 shadow-xs"
+                    title="Creator Admin Password Required"
+                  >
+                    <span>🔒 Admin</span>
+                  </button>
+
+                  {currentUser ? (
+                    <div className="flex items-center gap-2 border-l pl-3">
+                      <span className="font-bold text-gray-900">{currentUser.name}</span>
+                      <button onClick={() => setCurrentUser(null)} className="text-red-500 text-[10px]">Logout</button>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => setLoginOpen(true)}
+                      className="px-4 py-2 text-white bg-saffron-500 hover:bg-saffron-600 rounded-lg shadow-xs"
+                    >
+                      Login / OTP
+                    </button>
+                  )}
+                </div>
+
+              </div>
+            </div>
+          </header>
+
+          {/* HERO BANNER WITH INDIAN TRICOLOR BACKDROP */}
+          <section className="bg-gradient-to-r from-saffron-500 via-amber-500 to-indiaGreen-700 text-white py-8 px-4 shadow-md">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-2 text-center md:text-left">
+                <span className="px-3 py-1 bg-white/20 rounded-full text-[11px] font-extrabold">
+                  ⚡ INSTANT 30-MINUTE DOORSTEP SERVICE
+                </span>
+                <h1 className="text-3xl md:text-4xl font-black">
+                  India's Trusted <span className="text-amber-200">Doorstep Experts</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-white/90 font-medium">
+                  Verified Electricians, Plumbers, Washing Repair, Carpenters, Wall Painters, Water Suppliers, Ironing & Sanitation Specialists.
+                </p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-xs space-y-2 max-w-xs w-full">
+                <div className="flex justify-between font-bold">
+                  <span>Govt ID Verified</span>
+                  <span className="text-emerald-300">100% Verified</span>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <span>Average Arrival</span>
+                  <span className="text-saffron-200">20-30 Mins</span>
+                </div>
+                <button 
+                  onClick={() => setInstructionsOpen(true)}
+                  className="w-full py-2 bg-white text-saffron-700 font-extrabold rounded-lg shadow-sm mt-1"
+                >
+                  View Safety Guidelines
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* CATEGORIES BAR */}
+          <div className="bg-white/90 border-b border-gray-200 py-3 shadow-xs">
+            <div className="max-w-7xl mx-auto px-4 flex gap-2 overflow-x-auto pb-1 text-xs">
+              {[
+                { id: 'All', name: 'All Services', emoji: '🧰' },
+                { id: 'Electrician', name: 'Electricians', emoji: '⚡' },
+                { id: 'Plumber', name: 'Plumbers', emoji: '🚰' },
+                { id: 'Washing Repair', name: 'Washing Repair', emoji: '🧺' },
+                { id: 'Carpenter', name: 'Carpenters', emoji: '🔨' },
+                { id: 'Wall Painter', name: 'Wall Painters', emoji: '🎨' },
+                { id: 'Water Supplier', name: 'Water Suppliers', emoji: '💧' },
+                { id: 'Iron Person', name: 'Ironing Persons', emoji: '👔' },
+                { id: 'Scavenger / Sanitation', name: 'Scavengers/Cleaners', emoji: '🧼' },
+                { id: 'AC Repair', name: 'AC Technicians', emoji: '❄️' }
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`flex-shrink-0 px-3 py-2 rounded-xl font-bold flex items-center gap-1.5 transition-all ${
+                    selectedCategory === cat.id
+                      ? 'bg-saffron-500 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <span>{cat.emoji}</span>
+                  <span>{cat.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* FILTER BAR */}
+          <div className="bg-white/80 border-b border-gray-200 py-2 text-xs">
+            <div className="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-between gap-3">
+              <span className="text-gray-500 font-bold">
+                Showing <strong className="text-gray-900">{filtered.length}</strong> verified experts
+              </span>
+
+              <div className="flex items-center gap-2">
+                <select 
+                  value={sortBy} 
+                  onChange={e => setSortBy(e.target.value)}
+                  className="bg-gray-50 border border-gray-200 px-2 py-1 rounded-lg font-bold"
+                >
+                  <option value="rating">Top Rated ★</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="distance">Nearest First</option>
+                </select>
+
+                <select 
+                  value={genderFilter} 
+                  onChange={e => setGenderFilter(e.target.value)}
+                  className="bg-gray-50 border border-gray-200 px-2 py-1 rounded-lg font-bold"
+                >
+                  <option value="All">All Genders</option>
+                  <option value="Male">Male Professionals</option>
+                  <option value="Female">Female Professionals</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* PROVIDER CARDS GRID */}
+          <main className="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtered.map(p => (
+                <div key={p.id} className="bg-white rounded-2xl border border-gray-200 shadow-xs hover:shadow-xl transition-all overflow-hidden flex flex-col">
+                  
+                  <div className="p-4 bg-gradient-to-br from-gray-50 to-orange-50/40 border-b border-gray-100 flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <img src={p.avatar} alt={p.name} className="w-14 h-14 rounded-xl object-cover border" />
+                      <div>
+                        <h3 className="font-extrabold text-gray-900 text-sm">{p.name}</h3>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="px-2 py-0.2 bg-saffron-50 text-saffron-800 rounded text-[10px] font-bold">
+                            {p.category}
+                          </span>
+                          <span className="text-[10px] text-gray-500 font-semibold">{p.gender}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="px-2 py-1 bg-emerald-700 text-white font-bold text-xs rounded-lg">
+                      {p.rating} ★
+                    </span>
+                  </div>
+
+                  <div className="p-4 space-y-2 flex-1 text-xs">
+                    <div className="flex justify-between text-gray-600">
+                      <span>Govt ID Badge:</span>
+                      <strong className="font-mono text-gray-900">{p.idNo}</strong>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Experience:</span>
+                      <strong className="text-gray-800">{p.experience} • {p.completedJobs}+ Jobs</strong>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Distance:</span>
+                      <strong className="text-gray-900">{p.distanceKm} km away</strong>
+                    </div>
+                    <p className="text-[11px] text-gray-500 italic bg-gray-50 p-2 rounded-lg mt-2">
+                      "{p.bio}"
+                    </p>
+                  </div>
+
+                  <div className="p-4 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-gray-400 font-bold uppercase block">Rate Charge</span>
+                      <span className="text-lg font-black text-gray-900">₹{p.price} <span className="text-xs text-gray-500 font-normal">/{p.priceUnit}</span></span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <a href={`tel:${p.contact}`} className="p-2 border rounded-xl hover:bg-gray-100 text-gray-700">
+                        📞
+                      </a>
+                      <button 
+                        onClick={() => { setSelectedProvider(p); setBookingOpen(true); }}
+                        className="px-4 py-2 bg-saffron-500 hover:bg-saffron-600 text-white font-extrabold rounded-xl shadow-md text-xs"
+                      >
+                        Book Now
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+          </main>
+
+          {/* LEFT SLIDING STORE WINDOW (EQUIPMENT & SUPPLIES + TIP EXPERT) */}
+          {leftStoreOpen && (
+            <div className="fixed inset-0 z-50 flex">
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setLeftStoreOpen(false)}></div>
+              
+              <div className="relative bg-white w-full max-w-md h-full shadow-2xl z-10 flex flex-col overflow-hidden animate-slide-in">
+                
+                {/* Tricolor Header */}
+                <div className="h-1.5 w-full grid grid-cols-3">
+                  <div className="bg-[#FF9933]"></div>
+                  <div className="bg-white"></div>
+                  <div className="bg-[#138808]"></div>
+                </div>
+
+                {/* Sidebar Header */}
+                <div className="p-4 bg-gray-900 text-white flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🛍️</span>
+                    <div>
+                      <h3 className="font-extrabold text-sm text-white">Home Equipment & Supplies Store</h3>
+                      <p className="text-[10px] text-gray-400">Buy spare parts & add tip for your expert</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setLeftStoreOpen(false)} className="text-gray-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                {/* Products List */}
+                <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+                  
+                  {/* Tip Expert Section */}
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+                    <strong className="text-amber-900 font-extrabold block text-xs">💝 Tip Your Service Expert</strong>
+                    <p className="text-[11px] text-amber-800">100% of your tip goes directly to the professional upon arrival.</p>
+                    <div className="flex gap-2 pt-1">
+                      {[20, 50, 100, 200].map(tip => (
+                        <button
+                          key={tip}
+                          onClick={() => setSelectedTip(tip)}
+                          className={`flex-1 py-1.5 rounded-lg font-extrabold text-xs transition-all ${
+                            selectedTip === tip
+                              ? 'bg-indiaGreen-600 text-white shadow-xs'
+                              : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                          }`}
+                        >
+                          +₹{tip}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <h4 className="font-extrabold text-gray-900 text-xs pt-1">Available Spare Parts & Products</h4>
+
+                  {EQUIPMENT_PRODUCTS.map(prod => {
+                    const isAdded = cartProducts.some(item => item.id === prod.id);
+                    return (
+                      <div key={prod.id} className="p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-2xl">{prod.emoji}</span>
+                          <div>
+                            <h5 className="font-extrabold text-gray-900 text-xs">{prod.name}</h5>
+                            <span className="text-[10px] text-saffron-700 font-semibold">{prod.category}</span>
+                            <p className="text-[10px] text-gray-500">{prod.desc}</p>
+                          </div>
+                        </div>
+
+                        <div className="text-right flex flex-col items-end gap-1">
+                          <span className="font-black text-gray-900 text-sm">₹{prod.price}</span>
+                          <button
+                            onClick={() => toggleProductInCart(prod)}
+                            className={`px-3 py-1 rounded-lg text-[10px] font-extrabold transition-colors ${
+                              isAdded
+                                ? 'bg-indiaGreen-600 text-white'
+                                : 'bg-saffron-500 hover:bg-saffron-600 text-white'
+                            }`}
+                          >
+                            {isAdded ? 'Added ✓' : '+ Add'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                </div>
+
+                {/* Sidebar Footer */}
+                <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-2 text-xs">
+                  <div className="flex justify-between font-bold text-gray-800">
+                    <span>Products Total ({cartProducts.length}):</span>
+                    <span>₹{cartProducts.reduce((sum, item) => sum + item.price, 0)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-indiaGreen-700">
+                    <span>Expert Tip Added:</span>
+                    <span>+₹{selectedTip}</span>
+                  </div>
+                  <button 
+                    onClick={() => setLeftStoreOpen(false)}
+                    className="w-full py-2.5 bg-saffron-500 text-white font-extrabold rounded-xl shadow-md"
+                  >
+                    Save & Return to Services
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* FOOTER */}
+          <footer className="bg-gray-900 text-gray-400 py-6 px-4 text-center text-xs mt-auto">
+            <p className="font-extrabold text-white">Doorstep Experts • Created with Pride in India 🇮🇳</p>
+            <p className="text-[11px] mt-1 text-gray-500">All services verified for household safety & transparent pricing.</p>
+          </footer>
+
+          {/* BOOKING MODAL */}
+          {bookingOpen && selectedProvider && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 text-xs">
+                <div className="flex justify-between items-center border-b pb-2">
+                  <h3 className="font-extrabold text-sm text-gray-900">Confirm Booking: {selectedProvider.name}</h3>
+                  <button onClick={() => setBookingOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+                </div>
+                
+                <div className="p-3 bg-saffron-50 rounded-xl space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-gray-900">{selectedProvider.category}</span>
+                    <span className="font-black text-saffron-700 text-base">₹{selectedProvider.price}</span>
+                  </div>
+                  <p className="text-[10px] text-gray-500">Verified ID: {selectedProvider.idNo}</p>
+                </div>
+
+                {/* Purchased Products & Tip Summary */}
+                {(cartProducts.length > 0 || selectedTip > 0) && (
+                  <div className="p-2.5 bg-gray-50 rounded-xl border space-y-1 text-[11px]">
+                    {cartProducts.length > 0 && (
+                      <div className="flex justify-between text-gray-700">
+                        <span>Supplies ({cartProducts.length} items):</span>
+                        <strong className="text-gray-900">₹{cartProducts.reduce((sum, item) => sum + item.price, 0)}</strong>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-indiaGreen-700 font-bold">
+                      <span>Expert Tip:</span>
+                      <span>+₹{selectedTip}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">Your Name</label>
+                  <input type="text" defaultValue="Demo Customer" id="bkName" className="w-full p-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">Phone Number</label>
+                  <input type="text" defaultValue="9876543210" id="bkPhone" className="w-full p-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">Doorstep Address</label>
+                  <textarea defaultValue="Flat 402, Green Valley Apartments, Connaught Place, New Delhi" id="bkAddress" rows={2} className="w-full p-2 border rounded-lg resize-none" />
+                </div>
+
+                <button
+                  onClick={() => handleConfirmBooking({
+                    userName: document.getElementById('bkName').value,
+                    userPhone: document.getElementById('bkPhone').value,
+                    userAddress: document.getElementById('bkAddress').value,
+                    providerName: selectedProvider.name,
+                    providerCategory: selectedProvider.category,
+                    providerContact: selectedProvider.contact,
+                    providerIdNo: selectedProvider.idNo,
+                    amount: selectedProvider.price,
+                    timeSlot: "Immediately (Within 30 mins)",
+                    paymentMethod: "Cash / UPI"
+                  })}
+                  className="w-full py-3 bg-saffron-500 text-white font-extrabold text-xs rounded-xl shadow-md"
+                >
+                  Confirm Booking (Total: ₹{selectedProvider.price + cartProducts.reduce((sum, item) => sum + item.price, 0) + selectedTip})
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* LIVE GPS MODAL */}
+          {gpsOpen && activeOrder && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+                <div className="p-4 bg-gray-900 text-white flex justify-between items-center">
+                  <div>
+                    <h3 className="font-extrabold text-sm flex items-center gap-2">
+                      <span>Live GPS Provider Tracking</span>
+                      <span className="px-2 py-0.5 bg-emerald-500 text-[9px] rounded-full">LIVE DEMO</span>
+                    </h3>
+                    <p className="text-[10px] text-gray-400">Order #{activeOrder.id} • {activeOrder.providerName}</p>
+                  </div>
+                  <button onClick={() => setGpsOpen(false)} className="text-gray-400 hover:text-white">✕</button>
+                </div>
+
+                <div className="h-56 bg-slate-900 relative flex items-center justify-center overflow-hidden">
+                  <div className="text-center text-white space-y-2">
+                    <div className="text-4xl animate-bounce">🛵</div>
+                    <span className="text-xs font-bold text-saffron-400 block">{activeOrder.providerName} is en route!</span>
+                    <span className="text-[10px] text-emerald-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+                      ETA: ~12 Mins • 1.2 km away
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-4 space-y-3 bg-gray-50 text-xs">
+                  <div className="flex justify-between items-center bg-white p-3 rounded-xl border">
+                    <div>
+                      <strong className="block text-gray-900">{activeOrder.providerName} ({activeOrder.providerCategory})</strong>
+                      <span className="text-[10px] text-gray-500 font-mono">ID: {activeOrder.providerIdNo}</span>
+                      {activeOrder.tipAmount > 0 && (
+                        <span className="text-[10px] text-indiaGreen-700 font-bold block mt-0.5">Tip Included: +₹{activeOrder.tipAmount}</span>
+                      )}
+                    </div>
+                    <a href={`tel:${activeOrder.providerContact}`} className="px-3 py-1.5 bg-indiaGreen-600 text-white font-extrabold rounded-lg">
+                      📞 Call Expert
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI TROUBLESHOOTER CHATBOT MODAL */}
+          {aiOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[85vh]">
+                <div className="p-4 bg-indigo-950 text-white flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-saffron-500 text-gray-900 font-black flex items-center justify-center">
+                      🤖
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-sm text-white">Doorstep AI Home Troubleshooter</h3>
+                      <p className="text-[10px] text-indigo-300">Instant Safety Advice & Diagnostics</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setAiOpen(false)} className="text-gray-400 hover:text-white">✕</button>
+                </div>
+
+                {/* Chat Area */}
+                <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 text-xs">
+                  {aiMessages.map((msg, i) => (
+                    <div key={i} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                      <div className={`p-3 rounded-xl max-w-[85%] ${
+                        msg.sender === 'user' 
+                          ? 'bg-saffron-500 text-white font-bold rounded-br-none' 
+                          : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none shadow-xs'
+                      }`}>
+                        <p>{msg.text}</p>
+                        {msg.advice && (
+                          <div className="mt-2 pt-2 border-t border-gray-100 space-y-1.5">
+                            <div className="p-2 bg-amber-50 text-amber-900 rounded-lg font-bold border border-amber-200 text-[11px]">
+                              {msg.advice}
+                            </div>
+                            <p className="text-[11px] text-gray-600">{msg.sol}</p>
+                            <button
+                              onClick={() => {
+                                setSelectedCategory(msg.category);
+                                setAiOpen(false);
+                              }}
+                              className="w-full py-2 bg-saffron-500 text-white font-extrabold rounded-lg shadow-xs mt-1 text-[11px]"
+                            >
+                              Book {msg.category} Now →
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Input Form */}
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleAiSend();
+                  }}
+                  className="p-3 bg-white border-t flex gap-2"
+                >
+                  <input 
+                    type="text"
+                    value={aiQuery}
+                    onChange={e => setAiQuery(e.target.value)}
+                    placeholder="Describe issue (e.g. wire spark, pipe leak, fan noise)..."
+                    className="flex-1 px-3 py-2 border rounded-xl text-xs font-medium focus:ring-2 focus:ring-saffron-500"
+                  />
+                  <button type="submit" className="px-4 py-2 bg-indigo-950 text-white font-bold rounded-xl text-xs">
+                    Send
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ADMIN CONSOLE MODAL (100% RELIABLE ADMIN ACCESS) */}
+          {adminConsoleOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 text-xs h-[85vh] flex flex-col">
+                
+                {/* Header */}
+                <div className="flex justify-between items-center border-b pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-gray-900 text-saffron-400 font-black rounded-lg text-xs">🔒 CREATOR ADMIN</span>
+                    <h3 className="font-extrabold text-sm text-gray-900">Doorstep Experts Platform Console</h3>
+                  </div>
+                  <button onClick={() => setAdminConsoleOpen(false)} className="text-gray-400 font-bold hover:text-gray-600 text-lg">✕</button>
+                </div>
+
+                {/* Password Protection Lock Screen */}
+                {!adminAuthenticated ? (
+                  <div className="flex-1 flex flex-col items-center justify-center space-y-4 max-w-md mx-auto text-center py-6">
+                    <div className="w-14 h-14 rounded-2xl bg-saffron-100 border border-saffron-300 flex items-center justify-center text-2xl">
+                      🔑
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-gray-900 text-base">Creator Password Verification</h4>
+                      <p className="text-gray-500 text-[11px] mt-1">This console is restricted to the platform creator.</p>
+                    </div>
+
+                    {adminError && (
+                      <div className="w-full p-2.5 bg-red-50 text-red-700 border border-red-200 rounded-xl font-bold text-[11px]">
+                        {adminError}
+                      </div>
+                    )}
+
+                    <form onSubmit={handleAdminPasswordUnlock} className="w-full space-y-3">
+                      <input 
+                        type="password"
+                        value={adminPasswordInput}
+                        onChange={e => setAdminPasswordInput(e.target.value)}
+                        placeholder="Enter admin password (e.g. admin123)..."
+                        className="w-full p-3 border rounded-xl font-mono text-center text-sm font-bold focus:ring-2 focus:ring-saffron-500"
+                        autoFocus
+                      />
+                      <p className="text-[10px] text-gray-400">Creator Password: <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded font-bold">admin123</code></p>
+                      <button
+                        type="submit"
+                        className="w-full py-3 bg-gray-900 hover:bg-black text-white font-extrabold rounded-xl shadow-md text-xs"
+                      >
+                        Unlock Admin Console
+                      </button>
+                    </form>
+                  </div>
+                ) : (
+                  /* Full Unlocked Admin Console */
+                  <div className="flex-1 overflow-y-auto space-y-4">
+                    <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-emerald-900 font-bold">
+                      <span>✓ Creator Authenticated</span>
+                      <button onClick={() => setAdminAuthenticated(false)} className="text-xs text-red-600 underline">Lock Console</button>
+                    </div>
+
+                    <h4 className="font-bold text-gray-800 text-sm">Add New Service Provider</h4>
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      handleAddProvider({
+                        name: e.target.pName.value,
+                        category: e.target.pCat.value,
+                        price: e.target.pPrice.value,
+                        contact: e.target.pPhone.value,
+                        idNo: e.target.pIdNo.value,
+                        gender: e.target.pGender.value
+                      });
+                      e.target.reset();
+                    }} className="grid grid-cols-2 gap-2 bg-gray-50 p-4 rounded-xl border">
+                      <input name="pName" placeholder="Full Name" className="p-2 border rounded-lg" required />
+                      <select name="pCat" className="p-2 border rounded-lg">
+                        <option value="Electrician">Electrician</option>
+                        <option value="Plumber">Plumber</option>
+                        <option value="Washing Repair">Washing Repair</option>
+                        <option value="Carpenter">Carpenter</option>
+                        <option value="Wall Painter">Wall Painter</option>
+                        <option value="Water Supplier">Water Supplier</option>
+                        <option value="Iron Person">Iron Person</option>
+                        <option value="Scavenger / Sanitation">Scavenger / Sanitation</option>
+                        <option value="AC Repair">AC Repair</option>
+                      </select>
+                      <input name="pPrice" placeholder="Price (₹)" type="number" className="p-2 border rounded-lg" required />
+                      <input name="pPhone" placeholder="Phone Contact" className="p-2 border rounded-lg" required />
+                      <input name="pIdNo" placeholder="Govt ID No (DE-IND-xxxx)" className="p-2 border rounded-lg" required />
+                      <select name="pGender" className="p-2 border rounded-lg">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                      <button type="submit" className="col-span-2 py-2.5 bg-indiaGreen-600 hover:bg-indiaGreen-700 text-white font-extrabold rounded-lg shadow-xs">
+                        Save New Expert Member
+                      </button>
+                    </form>
+
+                    <h4 className="font-bold text-gray-800 text-sm pt-2">Registered Service Members ({providers.length})</h4>
+                    <div className="space-y-1.5">
+                      {providers.map(p => (
+                        <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 border rounded-xl">
+                          <div>
+                            <strong className="text-gray-900 font-bold">{p.name}</strong>
+                            <span className="text-gray-500 ml-2">({p.category} • ₹{p.price} | ID: {p.idNo})</span>
+                          </div>
+                          <button onClick={() => handleDeleteProvider(p.id)} className="px-2.5 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[11px]">
+                            Remove Member
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </div>
+          )}
+
+          {/* INSTRUCTIONS MODAL */}
+          {instructionsOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-4 text-xs">
+                <div className="flex justify-between items-center border-b pb-2">
+                  <h3 className="font-extrabold text-sm text-gray-900">📖 Doorstep Experts Safety Instructions</h3>
+                  <button onClick={() => setInstructionsOpen(false)} className="text-gray-400">✕</button>
+                </div>
+                <div className="space-y-2 text-gray-700">
+                  <p>1. <strong>Verification:</strong> Compare the provider's badge number on the app before opening the door.</p>
+                  <p>2. <strong>Transparent Rates:</strong> Upfront fixed rates without hidden charges.</p>
+                  <p>3. <strong>Home Store & Tip:</strong> Tap '🛍️ Store & Tip' on the left to buy spare parts or tip your expert.</p>
+                  <p>4. <strong>Live GPS:</strong> Track the assigned expert's arrival on the map.</p>
+                  <p>5. <strong>Admin Security:</strong> Admin Console requires creator password <code>admin123</code>.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* LOGIN MODAL */}
+          {loginOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-4 text-xs">
+                <div className="flex justify-between items-center border-b pb-2">
+                  <h3 className="font-extrabold text-sm text-gray-900">OTP Account Login</h3>
+                  <button onClick={() => setLoginOpen(false)} className="text-gray-400">✕</button>
+                </div>
+
+                <div className="p-2.5 bg-emerald-50 text-emerald-900 rounded-xl font-bold">
+                  📱 Demo OTP Code: <u className="font-mono text-sm">123456</u>
+                </div>
+
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">Mobile Number</label>
+                  <input type="text" defaultValue="9876543210" id="lPhone" className="w-full p-2 border rounded-lg font-mono font-bold" />
+                </div>
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">OTP Code</label>
+                  <input type="text" defaultValue="123456" id="lOtp" className="w-full p-2 border rounded-lg font-mono font-bold text-center text-sm" />
+                </div>
+
+                <button
+                  onClick={() => {
+                    setCurrentUser({ name: "Demo User", phone: document.getElementById('lPhone').value, role: 'user' });
+                    setLoginOpen(false);
+                  }}
+                  className="w-full py-2.5 bg-saffron-500 text-white font-extrabold rounded-xl shadow-md"
+                >
+                  Verify OTP & Login
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ORDERS MODAL */}
+          {ordersOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-4 text-xs">
+                <div className="flex justify-between items-center border-b pb-2">
+                  <h3 className="font-extrabold text-sm text-gray-900">My Service Orders ({orders.length})</h3>
+                  <button onClick={() => setOrdersOpen(false)} className="text-gray-400">✕</button>
+                </div>
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {orders.map(o => (
+                    <div key={o.id} className="p-3 border rounded-xl bg-gray-50 flex justify-between items-center">
+                      <div>
+                        <strong className="block text-gray-900 font-mono">#{o.id} - {o.providerName}</strong>
+                        <span className="text-[10px] text-saffron-700 font-bold">{o.providerCategory} • ₹{o.amount}</span>
+                      </div>
+                      <button 
+                        onClick={() => { setActiveOrder(o); setGpsOpen(true); setOrdersOpen(false); }} 
+                        className="px-3 py-1.5 bg-saffron-500 text-white font-extrabold rounded-lg"
+                      >
+                        Track GPS
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* LOCATION MODAL */}
+          {locationOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 space-y-3 text-xs">
+                <div className="flex justify-between items-center border-b pb-2">
+                  <h3 className="font-extrabold text-sm text-gray-900">Select City / Locality</h3>
+                  <button onClick={() => setLocationOpen(false)} className="text-gray-400">✕</button>
+                </div>
+                {[
+                  { city: "New Delhi", area: "Connaught Place, Central Delhi" },
+                  { city: "Mumbai", area: "Bandra West, Marine Drive" },
+                  { city: "Bengaluru", area: "Indiranagar, Koramangala" },
+                  { city: "Hyderabad", area: "Jubilee Hills, HITECH City" },
+                  { city: "Chennai", area: "T. Nagar, Anna Nagar" }
+                ].map((item, idx) => (
+                  <div 
+                    key={idx} 
+                    onClick={() => { setSelectedLocation(item); setLocationOpen(false); }}
+                    className="p-2.5 bg-gray-50 hover:bg-saffron-50 rounded-xl cursor-pointer border"
+                  >
+                    <strong className="block text-gray-900">{item.city}</strong>
+                    <span className="text-[10px] text-gray-500">{item.area}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
