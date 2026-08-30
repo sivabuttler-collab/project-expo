@@ -297,46 +297,67 @@
         phone: "9876543210",
         plan: "Monthly Home Pass",
         amount: 199,
-        status: "Approved", // Approved by Admin -> Access Granted!
+        status: "Approved",
         paymentRef: "UPI-PAY-987211",
-        requestedAt: new Date().toISOString()
-      },
-      {
-        id: "SUB-882",
-        userName: "Priya Sharma",
-        phone: "9811122233",
-        plan: "Annual Freedom Pass",
-        amount: 999,
-        status: "Pending Admin Approval", // Waiting for Creator Admin Approval
-        paymentRef: "UPI-PAY-776412",
         requestedAt: new Date().toISOString()
       }
     ];
 
-    const INITIAL_ORDERS = [
+    // Initial Live Worker Jobs Database & Completed Ratings
+    const INITIAL_LIVE_JOBS = [
       {
-        id: "ORD-9081",
-        userName: "Demo Customer",
-        userId: "9876543210",
-        userAddress: "Flat 402, Green Valley Apartments, Connaught Place, New Delhi",
+        id: "JOB-401",
+        customerName: "Rohan Khanna",
+        customerPhone: "9871100223",
+        providerId: "P-101",
         providerName: "Rajesh Kumar",
-        providerCategory: "Electrician",
-        providerContact: "+91 98765 43210",
-        providerIdNo: "DE-ELC-8842",
-        amount: 299,
-        tipAmount: 50,
-        purchasedProducts: ["Anchor 6A 3-Pin Smart Plug"],
-        timeSlot: "Immediately (30-45 mins)",
-        status: "En Route",
-        paymentMethod: "UPI (Paid)",
-        createdAt: new Date().toISOString()
+        category: "Electrician",
+        workStatus: "Working on Site", // 'En Route' | 'Working on Site' | 'Completed & Paid'
+        totalBill: 450,
+        adminCommission: 45, // 10% for Admin Creator Bank
+        workerPayout: 405, // 90% for Worker
+        customerRating: 5.0,
+        feedback: "Fixed MCB trip within 20 mins! Great work.",
+        updatedAt: "10 mins ago"
+      },
+      {
+        id: "JOB-402",
+        customerName: "Siddharth Verma",
+        customerPhone: "9812233445",
+        providerId: "P-103",
+        providerName: "Ramesh Verma",
+        category: "Plumber",
+        workStatus: "Working on Site",
+        totalBill: 500,
+        adminCommission: 50,
+        workerPayout: 450,
+        customerRating: 4.8,
+        feedback: "Kitchen tap leak repaired perfectly.",
+        updatedAt: "5 mins ago"
+      },
+      {
+        id: "JOB-403",
+        customerName: "Ananya Roy",
+        customerPhone: "9988112233",
+        providerId: "P-105",
+        providerName: "Amitabh Singh",
+        category: "Washing Repair",
+        workStatus: "Completed & Paid",
+        totalBill: 600,
+        adminCommission: 60,
+        workerPayout: 540,
+        customerRating: 5.0,
+        feedback: "Washing machine motor noise resolved.",
+        updatedAt: "1 hour ago"
       }
     ];
 
     function App() {
       const [providers, setProviders] = useState(INITIAL_PROVIDERS);
-      const [orders, setOrders] = useState(INITIAL_ORDERS);
+      const [orders, setOrders] = useState([]);
       const [subscriptions, setSubscriptions] = useState(INITIAL_SUBSCRIPTIONS);
+      const [liveJobs, setLiveJobs] = useState(INITIAL_LIVE_JOBS);
+      
       const [currentUser, setCurrentUser] = useState({ name: "Demo Customer", phone: "9876543210", role: "user" });
       const [selectedLocation, setSelectedLocation] = useState({ city: "New Delhi", area: "Connaught Place, Central Delhi" });
       const [selectedCategory, setSelectedCategory] = useState('All');
@@ -349,8 +370,15 @@
       const [cartProducts, setCartProducts] = useState([]);
       const [selectedTip, setSelectedTip] = useState(50);
 
-      // Left Sliding Window State
+      // Left Sliding Window Layers & Tabs
       const [leftStoreOpen, setLeftStoreOpen] = useState(false);
+      const [leftLayerTab, setLeftLayerTab] = useState('store'); // 'store' | 'live_workers' | 'revenue_ledger'
+
+      // Job Rating & Completion Modal
+      const [jobRatingOpen, setJobRatingOpen] = useState(false);
+      const [activeJobForRating, setActiveJobForRating] = useState(null);
+      const [givenRating, setGivenRating] = useState(5);
+      const [givenFeedback, setGivenFeedback] = useState("Excellent service! Solved the problem quickly.");
 
       // Subscription Paywall Modal State
       const [subscriptionOpen, setSubscriptionOpen] = useState(false);
@@ -381,6 +409,15 @@
         }
       ]);
 
+      // Calculate Total Creator 10% Revenue Commission
+      const totalAdminCommissionCollected = liveJobs
+        .filter(j => j.workStatus === "Completed & Paid")
+        .reduce((sum, j) => sum + j.adminCommission, 0);
+
+      const totalWorkerPayouts = liveJobs
+        .filter(j => j.workStatus === "Completed & Paid")
+        .reduce((sum, j) => sum + j.workerPayout, 0);
+
       // Check User Subscription Status (Requires Admin Approval)
       const userPhone = currentUser ? currentUser.phone : "9876543210";
       const activeUserSub = subscriptions.find(s => s.phone === userPhone);
@@ -404,7 +441,6 @@
       else if (sortBy === 'distance') filtered.sort((a, b) => a.distanceKm - b.distanceKm);
 
       const handleRequestBooking = (provider) => {
-        // Enforce Subscription & Admin Permit Access check!
         if (!isAccessPermitted) {
           setSelectedProvider(provider);
           setSubscriptionOpen(true);
@@ -436,10 +472,49 @@
           paymentMethod: payload.paymentMethod,
           createdAt: new Date().toISOString()
         };
+
+        // Create new Live Job tracking entry
+        const comm = Math.round(totalFinalAmount * 0.10); // 10% Admin Commission
+        const workerNet = totalFinalAmount - comm;
+
+        const newJob = {
+          id: `JOB-${Math.floor(500 + Math.random() * 500)}`,
+          customerName: payload.userName,
+          customerPhone: payload.userPhone,
+          providerId: selectedProvider ? selectedProvider.id : "P-101",
+          providerName: payload.providerName,
+          category: payload.providerCategory,
+          workStatus: "Working on Site",
+          totalBill: totalFinalAmount,
+          adminCommission: comm,
+          workerPayout: workerNet,
+          customerRating: 5.0,
+          feedback: "Job in progress...",
+          updatedAt: "Just Now"
+        };
+
+        setLiveJobs([newJob, ...liveJobs]);
         setOrders([newOrd, ...orders]);
         setBookingOpen(false);
         setActiveOrder(newOrd);
         setGpsOpen(true);
+      };
+
+      const handleCustomerCompleteJobAndRate = (jobId) => {
+        setLiveJobs(liveJobs.map(j => {
+          if (j.id === jobId) {
+            return {
+              ...j,
+              workStatus: "Completed & Paid",
+              customerRating: givenRating,
+              feedback: givenFeedback,
+              updatedAt: "Completed & Paid"
+            };
+          }
+          return j;
+        }));
+        setJobRatingOpen(false);
+        alert(`Thank you! Payment of ₹${activeJobForRating.totalBill} received. 10% (₹${activeJobForRating.adminCommission}) has been automatically transferred to Creator Admin Bank Account.`);
       };
 
       const handleSubmitSubscriptionPayment = (e) => {
@@ -450,7 +525,7 @@
           phone: userPhone,
           plan: selectedPlan.name,
           amount: selectedPlan.price,
-          status: "Pending Admin Approval", // Sent to Creator Admin for Permit Access!
+          status: "Pending Admin Approval",
           paymentRef: subPaymentRef,
           requestedAt: new Date().toISOString()
         };
@@ -606,15 +681,15 @@
                 
                 <div className="flex items-center gap-4">
                   
-                  {/* LEFT SLIDING STORE BUTTON */}
+                  {/* LEFT SLIDING STORE & WORKER TRACKER BUTTON */}
                   <button 
                     onClick={() => setLeftStoreOpen(true)}
                     className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-saffron-500 to-amber-500 text-white rounded-xl font-extrabold text-xs shadow-md hover:scale-105 transition-all"
-                    title="Open Home Equipment & Supplies Store"
+                    title="Open Home Store, Live Workers & 10% Revenue Ledger"
                   >
-                    <span>🛍️ Store & Tip</span>
+                    <span>🛍️ Store & Live Workers</span>
                     <span className="bg-white text-saffron-700 px-1.5 py-0.2 rounded-full text-[10px]">
-                      {cartProducts.length}
+                      10% Revenue
                     </span>
                   </button>
 
@@ -726,10 +801,8 @@
 
               <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 text-xs space-y-2 max-w-xs w-full">
                 <div className="flex justify-between font-bold">
-                  <span>Subscription Access</span>
-                  <span className={isAccessPermitted ? "text-emerald-300" : "text-amber-200"}>
-                    {isAccessPermitted ? '✓ Admin Permitted' : '🔒 Payment Pending'}
-                  </span>
+                  <span>10% Admin Commission</span>
+                  <span className="text-emerald-300">₹{totalAdminCommissionCollected} Earned</span>
                 </div>
                 <div className="flex justify-between font-bold">
                   <span>Average Arrival</span>
@@ -876,6 +949,279 @@
             </div>
           </main>
 
+          {/* LEFT SLIDING STORE & MULTI-LAYER WORKER/REVENUE DRAWER */}
+          {leftStoreOpen && (
+            <div className="fixed inset-0 z-50 flex">
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setLeftStoreOpen(false)}></div>
+              
+              <div className="relative bg-white w-full max-w-md h-full shadow-2xl z-10 flex flex-col overflow-hidden animate-slide-in">
+                
+                {/* Tricolor Header */}
+                <div className="h-1.5 w-full grid grid-cols-3">
+                  <div className="bg-[#FF9933]"></div>
+                  <div className="bg-white"></div>
+                  <div className="bg-[#138808]"></div>
+                </div>
+
+                {/* Sidebar Header */}
+                <div className="p-4 bg-gray-900 text-white flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🛍️</span>
+                    <div>
+                      <h3 className="font-extrabold text-sm text-white">Doorstep Platform Control Layers</h3>
+                      <p className="text-[10px] text-gray-400">Store, Live Workers & 10% Revenue Ledger</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setLeftStoreOpen(false)} className="text-gray-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                {/* LAYER TAB SELECTOR BUTTONS */}
+                <div className="flex bg-gray-100 p-1 border-b border-gray-200 text-xs font-extrabold">
+                  <button
+                    onClick={() => setLeftLayerTab('store')}
+                    className={`flex-1 py-2 rounded-lg transition-all text-[11px] ${
+                      leftLayerTab === 'store' ? 'bg-white text-saffron-700 shadow-xs' : 'text-gray-600'
+                    }`}
+                  >
+                    🛍️ Supplies Store
+                  </button>
+
+                  <button
+                    onClick={() => setLeftLayerTab('live_workers')}
+                    className={`flex-1 py-2 rounded-lg transition-all text-[11px] ${
+                      leftLayerTab === 'live_workers' ? 'bg-white text-indigo-900 shadow-xs' : 'text-gray-600'
+                    }`}
+                  >
+                    👷 Live Workers ({liveJobs.length})
+                  </button>
+
+                  <button
+                    onClick={() => setLeftLayerTab('revenue_ledger')}
+                    className={`flex-1 py-2 rounded-lg transition-all text-[11px] ${
+                      leftLayerTab === 'revenue_ledger' ? 'bg-white text-indiaGreen-700 shadow-xs' : 'text-gray-600'
+                    }`}
+                  >
+                    💰 10% Revenue
+                  </button>
+                </div>
+
+                {/* TAB 1: SUPPLIES STORE */}
+                {leftLayerTab === 'store' && (
+                  <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+                    
+                    {/* Tip Expert Section */}
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+                      <strong className="text-amber-900 font-extrabold block text-xs">💝 Tip Your Service Expert</strong>
+                      <p className="text-[11px] text-amber-800">100% of your tip goes directly to the professional upon arrival.</p>
+                      <div className="flex gap-2 pt-1">
+                        {[20, 50, 100, 200].map(tip => (
+                          <button
+                            key={tip}
+                            onClick={() => setSelectedTip(tip)}
+                            className={`flex-1 py-1.5 rounded-lg font-extrabold text-xs transition-all ${
+                              selectedTip === tip
+                                ? 'bg-indiaGreen-600 text-white shadow-xs'
+                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
+                            }`}
+                          >
+                            +₹{tip}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <h4 className="font-extrabold text-gray-900 text-xs pt-1">Available Spare Parts & Products</h4>
+
+                    {EQUIPMENT_PRODUCTS.map(prod => {
+                      const isAdded = cartProducts.some(item => item.id === prod.id);
+                      return (
+                        <div key={prod.id} className="p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-2xl">{prod.emoji}</span>
+                            <div>
+                              <h5 className="font-extrabold text-gray-900 text-xs">{prod.name}</h5>
+                              <span className="text-[10px] text-saffron-700 font-semibold">{prod.category}</span>
+                              <p className="text-[10px] text-gray-500">{prod.desc}</p>
+                            </div>
+                          </div>
+
+                          <div className="text-right flex flex-col items-end gap-1">
+                            <span className="font-black text-gray-900 text-sm">₹{prod.price}</span>
+                            <button
+                              onClick={() => toggleProductInCart(prod)}
+                              className={`px-3 py-1 rounded-lg text-[10px] font-extrabold transition-colors ${
+                                isAdded
+                                  ? 'bg-indiaGreen-600 text-white'
+                                  : 'bg-saffron-500 hover:bg-saffron-600 text-white'
+                              }`}
+                            >
+                              {isAdded ? 'Added ✓' : '+ Add'}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                  </div>
+                )}
+
+                {/* TAB 2: LIVE WORKERS & CUSTOMER RATING WORKFLOW */}
+                {leftLayerTab === 'live_workers' && (
+                  <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+                    <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 font-extrabold text-xs">
+                      ⚡ Real-Time Active Workers Tracker
+                      <p className="text-[10px] font-normal text-indigo-700 mt-0.5">Monitor plumbers, electricians, carpenters currently working at customer homes.</p>
+                    </div>
+
+                    {liveJobs.map(job => (
+                      <div key={job.id} className="p-3.5 bg-white border border-gray-200 rounded-xl shadow-xs space-y-2">
+                        <div className="flex justify-between items-start border-b pb-2">
+                          <div>
+                            <span className="font-mono font-extrabold text-gray-900">{job.id}</span>
+                            <strong className="block text-gray-800 text-xs">{job.providerName} ({job.category})</strong>
+                            <span className="text-[10px] text-gray-500">Customer: {job.customerName} (+91 {job.customerPhone})</span>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                            job.workStatus === "Completed & Paid" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"
+                          }`}>
+                            {job.workStatus}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between text-[11px]">
+                          <span>Total Bill Amount:</span>
+                          <strong className="text-gray-900 font-bold">₹{job.totalBill}</strong>
+                        </div>
+                        <div className="flex justify-between text-[11px] text-indiaGreen-700">
+                          <span>10% Admin Revenue:</span>
+                          <strong className="font-extrabold">+₹{job.adminCommission}</strong>
+                        </div>
+
+                        {job.workStatus !== "Completed & Paid" && (
+                          <button
+                            onClick={() => {
+                              setActiveJobForRating(job);
+                              setJobRatingOpen(true);
+                            }}
+                            className="w-full py-2 bg-saffron-500 hover:bg-saffron-600 text-white font-extrabold rounded-lg text-xs shadow-xs mt-1"
+                          >
+                            ⭐ Complete Job, Rate & Pay (Auto 10% Cut)
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* TAB 3: CREATOR 10% REVENUE BANK LEDGER */}
+                {leftLayerTab === 'revenue_ledger' && (
+                  <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
+                    <div className="p-4 bg-gradient-to-br from-emerald-700 to-indiaGreen-800 text-white rounded-2xl shadow-md space-y-2">
+                      <span className="text-[10px] uppercase font-bold text-emerald-200">Creator 10% Admin Bank Wallet</span>
+                      <h3 className="text-2xl font-black text-white">₹{totalAdminCommissionCollected}</h3>
+                      <p className="text-[11px] text-emerald-100">Automatically collected as 10% commission on every completed worker job.</p>
+                    </div>
+
+                    <div className="p-3 bg-gray-50 border rounded-xl space-y-1">
+                      <div className="flex justify-between font-bold text-gray-700">
+                        <span>Total Workers Payout (90%):</span>
+                        <span>₹{totalWorkerPayouts}</span>
+                      </div>
+                      <div className="flex justify-between font-extrabold text-indiaGreen-700">
+                        <span>Admin Revenue Payout (10%):</span>
+                        <span>+₹{totalAdminCommissionCollected}</span>
+                      </div>
+                    </div>
+
+                    <h4 className="font-extrabold text-gray-900 text-xs">Completed Job Revenue Breakdown</h4>
+
+                    <div className="space-y-2">
+                      {liveJobs.filter(j => j.workStatus === "Completed & Paid").map(j => (
+                        <div key={j.id} className="p-3 bg-white border rounded-xl flex justify-between items-center text-[11px]">
+                          <div>
+                            <strong className="block text-gray-900">{j.providerName} ({j.category})</strong>
+                            <span className="text-gray-500 text-[10px]">Job: {j.id} • Rating: {j.customerRating} ★</span>
+                          </div>
+
+                          <div className="text-right">
+                            <span className="text-indiaGreen-700 font-extrabold block">+₹{j.adminCommission} (10%)</span>
+                            <span className="text-gray-500 text-[10px]">Worker: ₹{j.workerPayout} (90%)</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sidebar Footer */}
+                <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-2 text-xs">
+                  <button 
+                    onClick={() => setLeftStoreOpen(false)}
+                    className="w-full py-2.5 bg-saffron-500 text-white font-extrabold rounded-xl shadow-md"
+                  >
+                    Close Control Drawer
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* CUSTOMER JOB COMPLETION & RATING MODAL */}
+          {jobRatingOpen && activeJobForRating && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+              <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 text-xs">
+                <div className="flex justify-between items-center border-b pb-2">
+                  <h3 className="font-extrabold text-sm text-gray-900">Complete Job & Rate Expert</h3>
+                  <button onClick={() => setJobRatingOpen(false)} className="text-gray-400 font-bold text-lg">✕</button>
+                </div>
+
+                <div className="p-3 bg-saffron-50 rounded-xl space-y-1">
+                  <strong className="text-gray-900 font-bold block">{activeJobForRating.providerName} ({activeJobForRating.category})</strong>
+                  <div className="flex justify-between text-xs font-bold pt-1">
+                    <span>Total Bill: ₹{activeJobForRating.totalBill}</span>
+                    <span className="text-indiaGreen-700">Admin 10% Cut: ₹{activeJobForRating.adminCommission}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">Give Customer Star Rating (1 to 5 ★)</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setGivenRating(star)}
+                        className={`flex-1 py-2 rounded-lg font-black text-sm transition-all ${
+                          givenRating >= star ? 'bg-amber-400 text-gray-900' : 'bg-gray-100 text-gray-400'
+                        }`}
+                      >
+                        {star} ★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-gray-700 block mb-1">Customer Feedback Review</label>
+                  <textarea 
+                    rows={2}
+                    value={givenFeedback}
+                    onChange={e => setGivenFeedback(e.target.value)}
+                    className="w-full p-2 border rounded-lg resize-none"
+                  />
+                </div>
+
+                <button
+                  onClick={() => handleCustomerCompleteJobAndRate(activeJobForRating.id)}
+                  className="w-full py-3 bg-indiaGreen-600 hover:bg-indiaGreen-700 text-white font-extrabold rounded-xl shadow-md"
+                >
+                  Pay ₹{activeJobForRating.totalBill} & Transfer 10% to Admin Wallet
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* USER SUBSCRIPTION PAYMENT & PERMIT ACCESS MODAL */}
           {subscriptionOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
@@ -952,112 +1298,6 @@
                     Submit Payment & Request Admin Approval (₹{selectedPlan.price})
                   </button>
                 </form>
-              </div>
-            </div>
-          )}
-
-          {/* LEFT SLIDING STORE WINDOW (EQUIPMENT & SUPPLIES + TIP EXPERT) */}
-          {leftStoreOpen && (
-            <div className="fixed inset-0 z-50 flex">
-              <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setLeftStoreOpen(false)}></div>
-              
-              <div className="relative bg-white w-full max-w-md h-full shadow-2xl z-10 flex flex-col overflow-hidden animate-slide-in">
-                
-                {/* Tricolor Header */}
-                <div className="h-1.5 w-full grid grid-cols-3">
-                  <div className="bg-[#FF9933]"></div>
-                  <div className="bg-white"></div>
-                  <div className="bg-[#138808]"></div>
-                </div>
-
-                {/* Sidebar Header */}
-                <div className="p-4 bg-gray-900 text-white flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">🛍️</span>
-                    <div>
-                      <h3 className="font-extrabold text-sm text-white">Home Equipment & Supplies Store</h3>
-                      <p className="text-[10px] text-gray-400">Buy spare parts & add tip for your expert</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setLeftStoreOpen(false)} className="text-gray-400 hover:text-white font-bold">✕</button>
-                </div>
-
-                {/* Products List */}
-                <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
-                  
-                  {/* Tip Expert Section */}
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
-                    <strong className="text-amber-900 font-extrabold block text-xs">💝 Tip Your Service Expert</strong>
-                    <p className="text-[11px] text-amber-800">100% of your tip goes directly to the professional upon arrival.</p>
-                    <div className="flex gap-2 pt-1">
-                      {[20, 50, 100, 200].map(tip => (
-                        <button
-                          key={tip}
-                          onClick={() => setSelectedTip(tip)}
-                          className={`flex-1 py-1.5 rounded-lg font-extrabold text-xs transition-all ${
-                            selectedTip === tip
-                              ? 'bg-indiaGreen-600 text-white shadow-xs'
-                              : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100'
-                          }`}
-                        >
-                          +₹{tip}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <h4 className="font-extrabold text-gray-900 text-xs pt-1">Available Spare Parts & Products</h4>
-
-                  {EQUIPMENT_PRODUCTS.map(prod => {
-                    const isAdded = cartProducts.some(item => item.id === prod.id);
-                    return (
-                      <div key={prod.id} className="p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-2xl">{prod.emoji}</span>
-                          <div>
-                            <h5 className="font-extrabold text-gray-900 text-xs">{prod.name}</h5>
-                            <span className="text-[10px] text-saffron-700 font-semibold">{prod.category}</span>
-                            <p className="text-[10px] text-gray-500">{prod.desc}</p>
-                          </div>
-                        </div>
-
-                        <div className="text-right flex flex-col items-end gap-1">
-                          <span className="font-black text-gray-900 text-sm">₹{prod.price}</span>
-                          <button
-                            onClick={() => toggleProductInCart(prod)}
-                            className={`px-3 py-1 rounded-lg text-[10px] font-extrabold transition-colors ${
-                              isAdded
-                                ? 'bg-indiaGreen-600 text-white'
-                                : 'bg-saffron-500 hover:bg-saffron-600 text-white'
-                            }`}
-                          >
-                            {isAdded ? 'Added ✓' : '+ Add'}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                </div>
-
-                {/* Sidebar Footer */}
-                <div className="p-4 bg-gray-50 border-t border-gray-200 space-y-2 text-xs">
-                  <div className="flex justify-between font-bold text-gray-800">
-                    <span>Products Total ({cartProducts.length}):</span>
-                    <span>₹{cartProducts.reduce((sum, item) => sum + item.price, 0)}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-indiaGreen-700">
-                    <span>Expert Tip Added:</span>
-                    <span>+₹{selectedTip}</span>
-                  </div>
-                  <button 
-                    onClick={() => setLeftStoreOpen(false)}
-                    className="w-full py-2.5 bg-saffron-500 text-white font-extrabold rounded-xl shadow-md"
-                  >
-                    Save & Return to Services
-                  </button>
-                </div>
-
               </div>
             </div>
           )}
@@ -1428,8 +1668,8 @@
                 <div className="space-y-2 text-gray-700">
                   <p>1. <strong>Verification:</strong> Compare the provider's badge number on the app before opening the door.</p>
                   <p>2. <strong>Transparent Rates:</strong> Upfront fixed rates without hidden charges.</p>
-                  <p>3. <strong>Home Store & Tip:</strong> Tap '🛍️ Store & Tip' on the left to buy spare parts or tip your expert.</p>
-                  <p>4. <strong>Subscription & Access:</strong> Users must submit subscription payments which Creator Admin approves before booking services.</p>
+                  <p>3. <strong>Home Store & Tip:</strong> Tap '🛍️ Store & Live Workers' on the left to buy spare parts or check worker status.</p>
+                  <p>4. <strong>10% Creator Commission:</strong> 10% of every completed job payment is automatically routed to the Creator Admin Bank Account.</p>
                   <p>5. <strong>Admin Security:</strong> Admin Console requires creator password <code>admin123</code>.</p>
                 </div>
               </div>
