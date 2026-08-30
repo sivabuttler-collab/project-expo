@@ -1,0 +1,40 @@
+[
+  {
+    "id": "SUB-5261",
+    "userId": "USER-GUEST",
+    "userName": "Valued Resident",
+    "planId": "all-access",
+    "planName": "All-Access VIP",
+    "price": 300,
+    "status": "Active",
+    "startDate": "2026-08-09T10:41:48.422Z",
+    "expiryDate": "2026-09-09T10:41:48.422Z",
+    "paymentMethod": "UPI",
+    "paymentTxn": "TXN_UPI_8638171"
+  },
+  {
+    "id": "SUB-4019",
+    "userId": "USER-1106",
+    "userName": "siva",
+    "planId": "premium",
+    "planName": "Premium Plan",
+    "price": 200,
+    "status": "Active",
+    "startDate": "2026-08-09T10:36:00.596Z",
+    "expiryDate": "2026-09-09T10:36:00.596Z",
+    "paymentMethod": "UPI",
+    "paymentTxn": "TXN_UPI_7980166"
+  },
+  {
+    "id": "SUB-1001",
+    "userId": "USER-3210",
+    "userName": "Anand V.",
+    "planId": "premium",
+    "planName": "Premium Plan",
+    "price": 200,
+    "status": "Active",
+    "startDate": "2026-08-01T00:00:00.000Z",
+    "expiryDate": "2026-09-01T00:00:00.000Z",
+    "paymentTxn": "TXN_UPI_9921004"
+  }
+]
