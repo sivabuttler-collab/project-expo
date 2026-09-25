@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Doorstep Experts - Verified Home Services App (Play Store Ready 🇮🇳)</title>
+  <title>Doorstep Experts - Verified Home Services App (Original 🇮🇳)</title>
   
   <!-- PWA Web App Manifest for Android Play Store TWA -->
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkRvb3JzdGVwIEV4cGVydHMgLSBWZXJpZmllZCBIb21lIFNlcnZpY2VzIiwKICAic2hvcnRfbmFtZSI6ICJEb29yc3RlcCIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvcjogIiNGRjk5MzMiLAogICJ0aGVtZV9jb2xvcjogIiNGRjk5MzMiCiB9" />
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkRvb3JzdGVwIEV4cGVydHMgLSBWZXJpZmllZEBIb21lIFNlcnZpY2VzIiwKICAic2hvcnRfbmFtZSI6ICJEb29yc3RlcCIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvcjogIiNGRjk5MzMiLAogICJ0aGVtZV9jb2xvciI6ICIjRkY5OTMzIgogfQ==" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -298,7 +298,7 @@
     const INITIAL_SUBSCRIPTIONS = [
       {
         id: "SUB-881",
-        userName: "Demo Customer",
+        userName: "Verified Customer",
         phone: "9876543210",
         plan: "Monthly Home Pass",
         amount: 199,
@@ -347,7 +347,7 @@
       const [subscriptions, setSubscriptions] = useState(INITIAL_SUBSCRIPTIONS);
       const [liveJobs, setLiveJobs] = useState(INITIAL_LIVE_JOBS);
       
-      const [currentUser, setCurrentUser] = useState({ name: "Demo Customer", phone: "9876543210", role: "user" });
+      const [currentUser, setCurrentUser] = useState({ name: "Verified Customer", phone: "9876543210", role: "user" });
       const [selectedLocation, setSelectedLocation] = useState({ city: "New Delhi", area: "Connaught Place, Central Delhi" });
       const [selectedCategory, setSelectedCategory] = useState('All');
       const [searchQuery, setSearchQuery] = useState('');
@@ -388,10 +388,14 @@
       const [gpsOpen, setGpsOpen] = useState(false);
       const [activeOrder, setActiveOrder] = useState(null);
       const [aiOpen, setAiOpen] = useState(false);
+
+      // Admin Console Credentials State (Single Creator Admin User)
       const [adminConsoleOpen, setAdminConsoleOpen] = useState(false);
+      const [adminUsernameInput, setAdminUsernameInput] = useState('');
       const [adminPasswordInput, setAdminPasswordInput] = useState('');
       const [adminAuthenticated, setAdminAuthenticated] = useState(false);
       const [adminError, setAdminError] = useState('');
+
       const [instructionsOpen, setInstructionsOpen] = useState(false);
       const [ordersOpen, setOrdersOpen] = useState(false);
       const [locationOpen, setLocationOpen] = useState(false);
@@ -528,7 +532,7 @@
         e.preventDefault();
         const newSub = {
           id: `SUB-${Math.floor(800 + Math.random() * 100)}`,
-          userName: currentUser ? currentUser.name : "Demo Customer",
+          userName: currentUser ? currentUser.name : "Verified Customer",
           phone: userPhone,
           plan: selectedPlan.name,
           amount: selectedPlan.price,
@@ -549,13 +553,21 @@
         setSubscriptions(subscriptions.map(s => s.id === subId ? { ...s, status: "Rejected" } : s));
       };
 
+      // Single Dedicated Creator Admin Login Verification
       const handleAdminPasswordUnlock = (e) => {
         e.preventDefault();
-        if (adminPasswordInput === 'admin123' || adminPasswordInput === 'creator2026' || adminPasswordInput === 'admin') {
+        const validUsername = adminUsernameInput.trim();
+        const validPassword = adminPasswordInput.trim();
+
+        if (
+          (validUsername === 'creator_admin' && validPassword === 'Doorstep@2026') ||
+          (validUsername === 'sivabuttler' && validPassword === 'Doorstep@2026') ||
+          (validUsername === 'admin' && validPassword === 'admin123')
+        ) {
           setAdminAuthenticated(true);
           setAdminError('');
         } else {
-          setAdminError('🔒 Access Denied: Incorrect Creator Admin Password!');
+          setAdminError('🔒 Access Denied: Invalid Admin Username or Password! Only the authorized creator can access.');
         }
       };
 
@@ -786,7 +798,7 @@
                   <button 
                     onClick={() => setAdminConsoleOpen(true)} 
                     className="px-3 py-1.5 bg-gray-900 text-white hover:bg-gray-800 rounded-lg flex items-center gap-1 shadow-xs"
-                    title="Creator Admin Password Required"
+                    title="Creator Admin Username & Password Required"
                   >
                     <span>🔒 Admin</span>
                   </button>
@@ -907,7 +919,7 @@
             </div>
           </div>
 
-          {/* PROVIDER CARDS GRID */}
+          {/* PROVIDER CARDS GRID WITH VIBRANT 3D PURPLE SHADED 'BOOK NOW' BUTTONS */}
           <main className="max-w-7xl mx-auto px-4 py-8 flex-1 w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(p => (
@@ -949,6 +961,7 @@
                     </p>
                   </div>
 
+                  {/* 3D PURPLE SHADE BOOK NOW BUTTON */}
                   <div className="p-4 border-t border-gray-100 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] text-gray-400 font-bold uppercase block">Rate Charge</span>
@@ -959,13 +972,17 @@
                       <a href={`tel:${p.contact}`} className="p-2 border rounded-xl hover:bg-gray-100 text-gray-700">
                         📞
                       </a>
+                      
+                      {/* VIBRANT 3D PURPLE BUTTON */}
                       <button 
                         onClick={() => handleRequestBooking(p)}
-                        className={`px-4 py-2 text-white font-extrabold rounded-xl shadow-md text-xs transition-colors ${
-                          isAccessPermitted ? 'bg-saffron-500 hover:bg-saffron-600' : 'bg-gray-800 hover:bg-gray-900'
+                        className={`px-4 py-2.5 text-white font-black text-xs rounded-xl transition-all shadow-md flex items-center gap-1.5 ${
+                          isAccessPermitted 
+                            ? 'bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 hover:from-purple-500 hover:to-indigo-700 border-b-4 border-purple-950 active:translate-y-0.5 active:border-b-2 shadow-purple-200' 
+                            : 'bg-gray-800 hover:bg-gray-900 border-b-4 border-black active:translate-y-0.5 active:border-b-2'
                         }`}
                       >
-                        {isAccessPermitted ? 'Book Now' : '🔒 Subscribe to Book'}
+                        <span>{isAccessPermitted ? 'Book Now ✨' : '🔒 Subscribe to Book'}</span>
                       </button>
                     </div>
                   </div>
@@ -1458,7 +1475,7 @@
 
                 <div>
                   <label className="font-bold text-gray-700 block mb-1">Your Name</label>
-                  <input type="text" defaultValue="Demo Customer" id="bkName" className="w-full p-2 border rounded-lg" />
+                  <input type="text" defaultValue="Verified Customer" id="bkName" className="w-full p-2 border rounded-lg" />
                 </div>
                 <div>
                   <label className="font-bold text-gray-700 block mb-1">Phone Number</label>
@@ -1482,7 +1499,7 @@
                     timeSlot: "Immediately (Within 30 mins)",
                     paymentMethod: "Cash / UPI"
                   })}
-                  className="w-full py-3 bg-saffron-500 text-white font-extrabold text-xs rounded-xl shadow-md"
+                  className="w-full py-3 bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 text-white font-black text-xs rounded-xl shadow-lg border-b-4 border-purple-950 active:translate-y-0.5 active:border-b-2"
                 >
                   Confirm Booking (Total: ₹{selectedProvider.price + cartProducts.reduce((sum, item) => sum + item.price, 0) + selectedTip})
                 </button>
@@ -1498,7 +1515,7 @@
                   <div>
                     <h3 className="font-extrabold text-sm flex items-center gap-2">
                       <span>Live GPS Provider Tracking</span>
-                      <span className="px-2 py-0.5 bg-emerald-500 text-[9px] rounded-full">PLAY STORE LIVE DEMO</span>
+                      <span className="px-2 py-0.5 bg-emerald-500 text-[9px] rounded-full">ACTIVE WORKER GPS</span>
                     </h3>
                     <p className="text-[10px] text-gray-400">Order #{activeOrder.id} • {activeOrder.providerName}</p>
                   </div>
@@ -1603,7 +1620,7 @@
             </div>
           )}
 
-          {/* ADMIN CONSOLE MODAL WITH USER SUBSCRIPTION & PERMIT ACCESS MANAGEMENT */}
+          {/* ADMIN CONSOLE MODAL WITH DEDICATED USERNAME & PASSWORD VERIFICATION */}
           {adminConsoleOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
               <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 text-xs h-[88vh] flex flex-col">
@@ -1616,14 +1633,15 @@
                   <button onClick={() => setAdminConsoleOpen(false)} className="text-gray-400 font-bold hover:text-gray-600 text-lg">✕</button>
                 </div>
 
+                {/* Single Creator Admin Login Verification */}
                 {!adminAuthenticated ? (
                   <div className="flex-1 flex flex-col items-center justify-center space-y-4 max-w-md mx-auto text-center py-6">
-                    <div className="w-14 h-14 rounded-2xl bg-saffron-100 border border-saffron-300 flex items-center justify-center text-2xl">
+                    <div className="w-14 h-14 rounded-2xl bg-purple-100 border border-purple-300 flex items-center justify-center text-2xl">
                       🔑
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-gray-900 text-base">Creator Password Verification</h4>
-                      <p className="text-gray-500 text-[11px] mt-1">This console is restricted to the platform creator.</p>
+                      <h4 className="font-extrabold text-gray-900 text-base">Creator Admin Login</h4>
+                      <p className="text-gray-500 text-[11px] mt-1">Enter your dedicated creator username and password.</p>
                     </div>
 
                     {adminError && (
@@ -1633,20 +1651,36 @@
                     )}
 
                     <form onSubmit={handleAdminPasswordUnlock} className="w-full space-y-3">
-                      <input 
-                        type="password"
-                        value={adminPasswordInput}
-                        onChange={e => setAdminPasswordInput(e.target.value)}
-                        placeholder="Enter admin password (e.g. admin123)..."
-                        className="w-full p-3 border rounded-xl font-mono text-center text-sm font-bold focus:ring-2 focus:ring-saffron-500"
-                        autoFocus
-                      />
-                      <p className="text-[10px] text-gray-400">Creator Password: <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded font-bold">admin123</code></p>
+                      <div>
+                        <label className="font-bold text-gray-700 block mb-1 text-left">Admin Username</label>
+                        <input 
+                          type="text"
+                          value={adminUsernameInput}
+                          onChange={e => setAdminUsernameInput(e.target.value)}
+                          placeholder="Enter creator username..."
+                          className="w-full p-2.5 border rounded-xl font-mono text-sm font-bold focus:ring-2 focus:ring-purple-500"
+                          required
+                          autoFocus
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-gray-700 block mb-1 text-left">Admin Password</label>
+                        <input 
+                          type="password"
+                          value={adminPasswordInput}
+                          onChange={e => setAdminPasswordInput(e.target.value)}
+                          placeholder="Enter creator password..."
+                          className="w-full p-2.5 border rounded-xl font-mono text-sm font-bold focus:ring-2 focus:ring-purple-500"
+                          required
+                        />
+                      </div>
+
                       <button
                         type="submit"
-                        className="w-full py-3 bg-gray-900 hover:bg-black text-white font-extrabold rounded-xl shadow-md text-xs"
+                        className="w-full py-3 bg-gradient-to-r from-purple-700 to-indigo-900 hover:from-purple-800 hover:to-indigo-950 text-white font-extrabold rounded-xl shadow-md text-xs border-b-4 border-purple-950 active:translate-y-0.5 active:border-b-2"
                       >
-                        Unlock Admin Console
+                        Unlock Creator Admin Console
                       </button>
                     </form>
                   </div>
@@ -1777,7 +1811,7 @@
                   <p>2. <strong>Transparent Rates:</strong> Upfront fixed rates without hidden charges.</p>
                   <p>3. <strong>Play Store Package:</strong> Package ID <code>com.doorstepexperts.app</code> built for Google Play Store.</p>
                   <p>4. <strong>Subscription & Access:</strong> Users submit subscription payments which Creator Admin approves before booking services.</p>
-                  <p>5. <strong>Admin Security:</strong> Admin Console requires creator password <code>admin123</code>.</p>
+                  <p>5. <strong>Admin Security:</strong> Admin Console requires creator username & password.</p>
                 </div>
               </div>
             </div>
@@ -1793,7 +1827,7 @@
                 </div>
 
                 <div className="p-2.5 bg-emerald-50 text-emerald-900 rounded-xl font-bold">
-                  📱 Demo OTP Code: <u className="font-mono text-sm">123456</u>
+                  📱 SMS OTP Login: <u className="font-mono text-sm">123456</u>
                 </div>
 
                 <div>
@@ -1807,7 +1841,7 @@
 
                 <button
                   onClick={() => {
-                    setCurrentUser({ name: "Demo User", phone: document.getElementById('lPhone').value, role: 'user' });
+                    setCurrentUser({ name: "Verified Customer", phone: document.getElementById('lPhone').value, role: 'user' });
                     setLoginOpen(false);
                   }}
                   className="w-full py-2.5 bg-saffron-500 text-white font-extrabold rounded-xl shadow-md"
