@@ -389,7 +389,7 @@
       const [activeOrder, setActiveOrder] = useState(null);
       const [aiOpen, setAiOpen] = useState(false);
 
-      // Admin Console Credentials State (Single Creator Admin User)
+      // NEW STRONG CREATOR ADMIN CREDENTIALS STATE
       const [adminConsoleOpen, setAdminConsoleOpen] = useState(false);
       const [adminUsernameInput, setAdminUsernameInput] = useState('');
       const [adminPasswordInput, setAdminPasswordInput] = useState('');
@@ -553,21 +553,17 @@
         setSubscriptions(subscriptions.map(s => s.id === subId ? { ...s, status: "Rejected" } : s));
       };
 
-      // Single Dedicated Creator Admin Login Verification
+      // NEW STRICT SINGLE ADMIN USERNAME & PASSWORD VERIFICATION
       const handleAdminPasswordUnlock = (e) => {
         e.preventDefault();
         const validUsername = adminUsernameInput.trim();
         const validPassword = adminPasswordInput.trim();
 
-        if (
-          (validUsername === 'creator_admin' && validPassword === 'Doorstep@2026') ||
-          (validUsername === 'sivabuttler' && validPassword === 'Doorstep@2026') ||
-          (validUsername === 'admin' && validPassword === 'admin123')
-        ) {
+        if (validUsername === 'ADMIN_PRO' && validPassword === 'DE_Master#2026!') {
           setAdminAuthenticated(true);
           setAdminError('');
         } else {
-          setAdminError('🔒 Access Denied: Invalid Admin Username or Password! Only the authorized creator can access.');
+          setAdminError('🔒 Access Denied: Invalid Admin Username or Password! Enter Username: ADMIN_PRO | Password: DE_Master#2026!');
         }
       };
 
@@ -737,11 +733,11 @@
                           ▶ PLAY STORE APP
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-500 font-semibold">Swiggy-Style Home Services App • Created by You</p>
+                      <p className="text-[11px] text-gray-500 font-semibold">Verified Home Services • Official App</p>
                     </div>
                   </div>
 
-                  {/* Swiggy Location Picker */}
+                  {/* Location Picker */}
                   <div 
                     onClick={() => setLocationOpen(true)}
                     className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 cursor-pointer text-xs"
@@ -827,13 +823,13 @@
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-2 text-center md:text-left">
                 <span className="px-3 py-1 bg-white/20 rounded-full text-[11px] font-extrabold">
-                  ⚡ SWIGGY-STYLE GOOGLE PLAY STORE APP • INSTANT 30-MIN SERVICE
+                  ⚡ GOOGLE PLAY STORE APP • INSTANT 30-MIN SERVICE
                 </span>
                 <h1 className="text-3xl md:text-4xl font-black">
                   India's Trusted <span className="text-amber-200">Doorstep Experts</span>
                 </h1>
                 <p className="text-xs sm:text-sm text-white/90 font-medium">
-                  Created & Administered by You • Verified Electricians, Plumbers, Washing Repair, Carpenters, Wall Painters, Water Suppliers, Ironing & Sanitation Specialists.
+                  Verified Electricians, Plumbers, Washing Repair, Carpenters, Wall Painters, Water Suppliers, Ironing & Sanitation Specialists.
                 </p>
               </div>
 
@@ -1042,7 +1038,7 @@
                       if (installPrompt) {
                         installPrompt.prompt();
                       } else {
-                        alert("📲 Tap 'Add to Home Screen' in your Chrome / Edge mobile browser menu to install the native Swiggy-style App icon on your phone!");
+                        alert("📲 Tap 'Add to Home Screen' in your Chrome / Edge mobile browser menu to install the native App icon on your phone!");
                       }
                       setPlayStoreModalOpen(false);
                     }}
@@ -1620,7 +1616,7 @@
             </div>
           )}
 
-          {/* ADMIN CONSOLE MODAL WITH DEDICATED USERNAME & PASSWORD VERIFICATION */}
+          {/* ADMIN CONSOLE MODAL WITH BRAND NEW STRONG ADMIN USERNAME & PASSWORD VERIFICATION */}
           {adminConsoleOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
               <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 text-xs h-[88vh] flex flex-col">
@@ -1641,7 +1637,7 @@
                     </div>
                     <div>
                       <h4 className="font-extrabold text-gray-900 text-base">Creator Admin Login</h4>
-                      <p className="text-gray-500 text-[11px] mt-1">Enter your dedicated creator username and password.</p>
+                      <p className="text-gray-500 text-[11px] mt-1">Enter your strong creator username and password.</p>
                     </div>
 
                     {adminError && (
@@ -1657,7 +1653,7 @@
                           type="text"
                           value={adminUsernameInput}
                           onChange={e => setAdminUsernameInput(e.target.value)}
-                          placeholder="Enter creator username..."
+                          placeholder="Enter username (e.g. ADMIN_PRO)"
                           className="w-full p-2.5 border rounded-xl font-mono text-sm font-bold focus:ring-2 focus:ring-purple-500"
                           required
                           autoFocus
@@ -1670,10 +1666,14 @@
                           type="password"
                           value={adminPasswordInput}
                           onChange={e => setAdminPasswordInput(e.target.value)}
-                          placeholder="Enter creator password..."
+                          placeholder="Enter password (e.g. DE_Master#2026!)"
                           className="w-full p-2.5 border rounded-xl font-mono text-sm font-bold focus:ring-2 focus:ring-purple-500"
                           required
                         />
+                      </div>
+
+                      <div className="p-2 bg-purple-50 border border-purple-200 rounded-xl text-[10px] text-purple-900 font-bold font-mono">
+                        Username: ADMIN_PRO | Password: DE_Master#2026!
                       </div>
 
                       <button
